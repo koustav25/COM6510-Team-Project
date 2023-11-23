@@ -25,23 +25,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.TodoCategories
-import com.example.myapplication.TodoCategoryData
 
 @Composable
-fun CategoryScreen(categories: List<TodoCategories>){
+fun CategoryScreen(categories: List<TodoCategories>, onNavigate: () -> Unit){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.Top,
     ){
         items(categories){category ->
-            CategoryItems(category = category)
+            CategoryItems(onNavigate, category = category)
         }
     }
 }
 
 @Composable
-fun CategoryItems(category: TodoCategories){
+fun CategoryItems(onNavigate: () -> Unit, category: TodoCategories){
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -52,7 +51,7 @@ fun CategoryItems(category: TodoCategories){
                 contentScale = ContentScale.Crop
             )
             .border(1.dp, Color(0xFFEEEEEE))
-            .clickable(onClick = { }),
+            .clickable(onClick = { onNavigate() }),
         contentAlignment = Alignment.BottomCenter
     ){
         Text(
@@ -66,6 +65,6 @@ fun CategoryItems(category: TodoCategories){
 
 @Preview
 @Composable
-fun viewData(){
-    CategoryScreen(categories = TodoCategoryData())
+fun ViewData(){
+    //CategoryScreen(categories = TodoCategoryData())
 }

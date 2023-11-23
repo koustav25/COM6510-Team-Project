@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -38,7 +39,7 @@ import androidx.compose.ui.unit.dp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoDetail(){
+fun TodoDetail(onNavigate: () -> Unit){
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Todos") },
@@ -64,6 +65,9 @@ fun TodoDetail(){
             Todos("This is second todo")
             Todos("This is third todo")
             Todos("This is fourth todo")
+            Button(onClick = { onNavigate() } ) {
+                Text(text = "Go to Home Screen")
+            }
         }
     }
 }
