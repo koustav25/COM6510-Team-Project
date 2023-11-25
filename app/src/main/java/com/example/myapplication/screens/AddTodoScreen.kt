@@ -1,5 +1,7 @@
 package com.example.myapplication.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,19 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
-import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTodo() {
+fun AddTodo(onNavigate: () -> Unit) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-
-    val todoViewModel: TodoViewModel = viewModel()
+    val context = LocalContext.current
     val buttonCoroutineScope = rememberCoroutineScope()
     val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
 
@@ -79,15 +78,23 @@ fun AddTodo() {
 
         // Add Todo Button
         Button(
-            onClick = ::insertOnClick
-            // todoViewModel.addTodo(title, description)
-            // Clear fields after adding todo
-            //title = ""
-            //description = ""
-            ,
+            onClick = {
+                if(title.isNotBlank()){
+                    insertOnClick()
+                    getToast(context, "Todo added!")
+                    onNavigate()
+                }
+                else{
+                    getToast(context, "Title cannot be empty")
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Add Todo")
         }
     }
+}
+
+fun getToast(context: Context, msg: String){
+    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
 }
