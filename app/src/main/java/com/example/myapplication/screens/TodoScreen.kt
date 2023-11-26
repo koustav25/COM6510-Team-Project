@@ -79,9 +79,14 @@ LazyColumn(
                      Log.i("cat", "Scheduled")
                  }
                  if(selectedCategory?.todoCategories == "Important"){
-                     Todos(todo = todoViewModel.importantTodos, viewModel = todoViewModel)
-                     Button(onClick = { onNavigate() }) {
-                         Text(text = "Go to Home Screen")
+                     if(todoViewModel.isImportantEmpty()){
+                         Text(text = "No Important todos")
+                     }
+                     else{
+                         Todos(todo = todoViewModel.importantTodos, viewModel = todoViewModel)
+                         Button(onClick = { onNavigate() }) {
+                             Text(text = "Go to Home Screen")
+                         }
                      }
                      Log.i("cat", "Important")
                  }

@@ -31,4 +31,9 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
         val todosList = allTodos.firstOrNull()
         todosList.isNullOrEmpty()
     }
+
+    fun isImportantEmpty(): Boolean = runBlocking {
+        val todosList = importantTodos.firstOrNull()
+        todosList.isNullOrEmpty()
+    }
 }
