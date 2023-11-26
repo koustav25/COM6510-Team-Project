@@ -1,6 +1,7 @@
 package com.example.myapplication.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,23 +30,67 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.TodoCategories
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.flow.Flow
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TodoDetail(onNavigate: () -> Unit){
+fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: () -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
 LazyColumn(
         modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxSize())
+            .padding(5.dp)
+            .fillMaxSize())
          {item{
-             Todos(todo = todoViewModel.allTodos, todoViewModel)
-             Button(onClick = { onNavigate() } ) {
-             Text(text = "Go to Home Screen")
-            }
+             if(todoViewModel.isEmpty()){
+                 Text(text = ("No Todos"))
+             }
+             else{
+                 if(selectedCategory?.todoCategories == "Today"){
+                     Todos(todo = todoViewModel.currentDateTodos, todoViewModel)
+                     Button(onClick = { onNavigate() }) {
+                         Text(text = "Go to Home Screen")
+                     }
+                     Log.i("cat", "Todayyyyyyyyyy")
+                 }
+                 if(selectedCategory?.todoCategories == "All"){
+                     Todos(todo = todoViewModel.allTodos, todoViewModel)
+                     Button(onClick = { onNavigate() } ) {
+                         Text(text = "Go to Home Screen")
+                     }
+                     Log.i("cat", "ALLLLLLLLL")
+                 }
+                 if(selectedCategory?.todoCategories == "Scheduled"){
+                     Text(text = "No Todos here in Scheduled") //Placeholder for now
+                     Button(onClick = { onNavigate() }) {
+                         Text(text = "Go to Home Screen")
+                     }
+                     Log.i("cat", "Scheduled")
+                 }
+                 if(selectedCategory?.todoCategories == "Important"){
+                     Text(text = "No Todos here in Important")  //Placeholder for now
+                     Button(onClick = { onNavigate() }) {
+                         Text(text = "Go to Home Screen")
+                     }
+                     Log.i("cat", "Important")
+                 }
+                 if(selectedCategory?.todoCategories == "Finished"){
+                     Text(text = "No Todos here in Finished")  //Placeholder for now
+                     Button(onClick = { onNavigate() }) {
+                         Text(text = "Go to Home Screen")
+                     }
+                     Log.i("cat", "Finished")
+                 }
+                 if(selectedCategory?.todoCategories == "Bin"){
+                     Text(text = "No Todos here")  //Placeholder for now
+                     Button(onClick = { onNavigate() }) {
+                         Text(text = "Go to Home Screen")
+                     }
+                     Log.i("cat", "Bin")
+                 }
+             }
         }
      }
 }
@@ -53,10 +98,10 @@ LazyColumn(
 @Composable
 fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
     val todosState by todo.collectAsState(initial = emptyList())
-    val isChecked = remember{ mutableStateOf(false) }
-    val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
     Column {
         todosState.forEach { todoItem ->
+            val isChecked = remember{ mutableStateOf(false) }
+            val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -70,8 +115,7 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val isChecked = remember{ mutableStateOf(false) }
-                    val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
+
                     Checkbox(checked = isChecked.value, onCheckedChange = {
                         isChecked.value = it
                     })
@@ -86,6 +130,12 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(textDecoration = textDecoration)) {
                             append(todoItem.description)
+                        }
+                    })
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(textDecoration = if(isChecked.value) TextDecoration.LineThrough else null)) {
+                            append(todoItem.date)
                         }
                     })
             }

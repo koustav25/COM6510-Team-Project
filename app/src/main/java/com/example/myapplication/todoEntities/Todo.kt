@@ -9,7 +9,8 @@ data class Todo(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val title: String,
-    val description: String
+    val description: String,
+    val date: String
 ){
     companion object{
         const val TABLE_NAME = "todos"

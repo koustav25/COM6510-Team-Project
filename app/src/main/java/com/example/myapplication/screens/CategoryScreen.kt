@@ -27,7 +27,7 @@ import com.example.myapplication.R
 import com.example.myapplication.TodoCategories
 
 @Composable
-fun CategoryScreen(categories: List<TodoCategories>, onNavigate: () -> Unit){
+fun CategoryScreen(categories: List<TodoCategories>, onNavigate: (TodoCategories) -> Unit){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
@@ -40,7 +40,7 @@ fun CategoryScreen(categories: List<TodoCategories>, onNavigate: () -> Unit){
 }
 
 @Composable
-fun CategoryItems(onNavigate: () -> Unit, category: TodoCategories){
+fun CategoryItems(onNavigate: (TodoCategories) -> Unit, category: TodoCategories){
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -51,7 +51,7 @@ fun CategoryItems(onNavigate: () -> Unit, category: TodoCategories){
                 contentScale = ContentScale.Crop
             )
             .border(1.dp, Color(0xFFEEEEEE))
-            .clickable(onClick = { onNavigate() }),
+            .clickable(onClick = { onNavigate(category) }),
         contentAlignment = Alignment.BottomCenter
     ){
         Text(

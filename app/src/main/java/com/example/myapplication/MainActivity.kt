@@ -94,13 +94,22 @@ fun App(){
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
+            var currentCategory by remember {
+                mutableStateOf<TodoCategories?>(null)
+            }
             MaterialTheme {
                 when (currentScreen) {
-                    Screen.Home -> CategoryScreen(categories = TodoCategoryData()) {
+                    Screen.Home -> CategoryScreen(categories = TodoCategoryData()) { selectedCategory ->
                         currentScreen = Screen.TodoScreen
+                        currentCategory = selectedCategory
                     }
-                    Screen.TodoScreen -> TodoDetail { currentScreen = Screen.Home }
-                    Screen.AddTodoScreen -> AddTodo() { currentScreen = Screen.TodoScreen }
+                    Screen.TodoScreen -> TodoDetail(selectedCategory = currentCategory) {
+                        currentScreen = Screen.Home
+                    }
+                    Screen.AddTodoScreen -> AddTodo() {
+                        currentScreen = Screen.TodoScreen
+                        currentCategory = TodoCategories("All")
+                    }
 //            Screen.Details -> DetailsScreen { currentScreen = Screen.Home }
                 }
             }

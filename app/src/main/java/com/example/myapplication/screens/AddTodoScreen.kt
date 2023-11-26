@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +71,8 @@ fun AddTodo(onNavigate: () -> Unit) {
                 dao.insert(
                     Todo(
                         title = title,
-                        description = description
+                        description = description,
+                        date = LocalDate.now().toString()
                     )
                 )
             }
