@@ -79,7 +79,7 @@ LazyColumn(
                      Log.i("cat", "Scheduled")
                  }
                  if(selectedCategory?.todoCategories == "Important"){
-                     Text(text = "No Todos here in Important")  //Placeholder for now
+                     Todos(todo = todoViewModel.importantTodos, viewModel = todoViewModel)
                      Button(onClick = { onNavigate() }) {
                          Text(text = "Go to Home Screen")
                      }

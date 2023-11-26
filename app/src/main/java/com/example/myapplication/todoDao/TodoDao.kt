@@ -18,4 +18,7 @@ interface TodoDao {
 
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate")
     fun getTodosByDate(currentDate: String): Flow<List<Todo>>
+
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isImportant = true")
+    fun getImportantTodos(): Flow<List<Todo>>
 }

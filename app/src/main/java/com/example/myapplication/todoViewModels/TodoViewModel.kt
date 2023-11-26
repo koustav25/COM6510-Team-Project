@@ -18,8 +18,9 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     private val dao = TodoDatabase.getDatabase(context).todoDao()
 
     val allTodos: Flow<List<Todo>> = dao.getAllTodos()
-
     val currentDateTodos: Flow<List<Todo>> = dao.getTodosByDate(LocalDate.now().toString())
+    val importantTodos: Flow<List<Todo>> = dao.getImportantTodos()
+
     fun addTodo(title: String, description: String) {
         viewModelScope.launch(Dispatchers.IO) {
             addTodo(title, description)
