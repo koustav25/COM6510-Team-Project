@@ -1,9 +1,13 @@
 package com.example.myapplication
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
@@ -14,7 +18,8 @@ import androidx.compose.runtime.Composable
 
 val navigationList = listOf(
     NavigationComponent("Home", Icons.Filled.Home, Icons.Outlined.Home, ScreenID.HOME),
-    NavigationComponent("Favourites", Icons.Filled.Star, Icons.Outlined.Star, ScreenID.TEST),
+    NavigationComponent("Add Todo", Icons.Filled.AddCircle, Icons.Outlined.Add, ScreenID.ADD),
+    NavigationComponent("Favourites", Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder, ScreenID.FAVORITES),
     NavigationComponent("Settings", Icons.Filled.Settings, Icons.Outlined.Settings, ScreenID.SETTING)
 )
 

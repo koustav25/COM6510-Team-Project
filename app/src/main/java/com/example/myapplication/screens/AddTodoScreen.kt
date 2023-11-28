@@ -20,7 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
@@ -103,9 +105,9 @@ fun AddTodo(onNavigate: () -> Unit) {
         Icons.Outlined.FavoriteBorder
     }
     val impIcon = if(isImportantClicked){
-        Icons.Filled.CheckCircle
+        Icons.Filled.Info
     }else{
-        Icons.Outlined.CheckCircle
+        Icons.Outlined.Info
     }
     LazyColumn(
         modifier = Modifier
@@ -189,7 +191,7 @@ fun AddTodo(onNavigate: () -> Unit) {
 
                     ) {
                         Icon(favIcon, contentDescription = "Favorite")
-                        Text(text = "Favorite", fontSize = 8.sp)
+                        Text(text = "Fav", fontSize = 8.sp)
                     }
                 }
                 IconButton(
@@ -207,7 +209,7 @@ fun AddTodo(onNavigate: () -> Unit) {
 
                     ) {
                         Icon(impIcon, contentDescription = "Important")
-                        Text(text = "Important", fontSize = 8.sp)
+                        Text(text = "Imp", fontSize = 8.sp)
                     }
                 }
                 //Date Picker
@@ -236,7 +238,7 @@ fun AddTodo(onNavigate: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            Icons.Outlined.Info, "Time Picker"
+                            Icons.Outlined.DateRange, "Time Picker"
                         )
                         Text(text = "Time", fontSize = 8.sp)
                     }

@@ -15,13 +15,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -181,6 +185,7 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
 
     Column {
         todosState.forEach { todoItem ->
+            var isExpanded by remember { mutableStateOf(false) }
             val isChecked = remember{ mutableStateOf(false) }
             val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
             var isFavClicked by remember { mutableStateOf(false) }
@@ -191,15 +196,15 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                 Icons.Outlined.FavoriteBorder
             }
             val impIcon = if (isImportantClicked){
-                Icons.Filled.CheckCircle
+                Icons.Filled.Info
             }else{
-                Icons.Outlined.CheckCircle
+                Icons.Outlined.Info
             }
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
                     .fillMaxWidth()
-                    .clickable(onClick = { }),
+                    .clickable(onClick = { isExpanded = !isExpanded }),
                 shape = RoundedCornerShape(CornerSize(10.dp)),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
@@ -287,9 +292,9 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                         if (todoItem.isImportant) {
                             var isImportantClicked by remember { mutableStateOf(todoItem.isImportant) }
                             val impIcon = if (isImportantClicked){
-                                Icons.Filled.CheckCircle
+                                Icons.Filled.Info
                             }else{
-                                Icons.Outlined.CheckCircle
+                                Icons.Outlined.Info
                             }
                             Icon(
                                 imageVector = impIcon,
@@ -308,6 +313,59 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                             )
                         }
                     }
+
+                    //Expand todo
+                    if(isExpanded){
+                        Divider(modifier = Modifier.padding(vertical = 5.dp),
+                            thickness = 1.dp,
+                        )
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
+                                    if(todoItem.scheduledDate == "null"){
+                                        append("Scheduled Date: Not scheduled")
+                                    }
+                                    else{
+                                        append("Scheduled Date: "+todoItem.scheduledDate)
+                                    }
+                                }
+                            })
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
+                                    if(todoItem.scheduledTime == "null"){
+                                        append("Scheduled Time: Not scheduled")
+                                    }
+                                    else{
+                                        append("Scheduled Time: "+todoItem.scheduledTime)
+                                    }
+
+                                }
+                            })
+                        Divider(modifier = Modifier.padding(vertical = 5.dp),
+                            thickness = 1.dp,
+                        )
+                        Row(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            //Delete Todo Button
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "Edit Todo"
+                                )
+                            }
+                            //Edit Todo Button
+                            IconButton(onClick = { }) {
+                                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Todo")
+                            }
+                        }
+                    }
+
                 }
             }
         }

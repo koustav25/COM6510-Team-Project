@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import Favorites
+import Settings
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,11 +43,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    App() //Code For Navigation
-//                    AddTodo() //For adding the todo to the database
-                    //TodoDetail() //{Here in this screen we may need to add the Navigation Bar in the Scaffold}
-                    //DisplayScaffold()
-                    //CategoryScreen(categories = TodoCategoryData())
+                    App()
                 }
             }
         }
@@ -61,6 +59,15 @@ fun App(){
     fun updatedSelectedID(id: Int, newTitle: String) {
         selectedScreenID = id
         title = newTitle
+
+        //Bottom bar navigation
+        currentScreen = when(id){
+            ScreenID.HOME -> Screen.Home
+            ScreenID.FAVORITES -> Screen.Favorites
+            ScreenID.SETTING -> Screen.Settings
+            ScreenID.ADD -> Screen.AddTodoScreen
+            else -> currentScreen
+        }
     }
 
     Scaffold(
@@ -78,13 +85,6 @@ fun App(){
                 selectedScreenID = selectedScreenID,
                 updatedSelected = ::updatedSelectedID
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { }) {
-                IconButton(onClick = { currentScreen = Screen.AddTodoScreen }) {
-                    Icon(Icons.Filled.Add, contentDescription = "ADD")
-                }
-            }
         }
     ) {
         Column(
@@ -110,7 +110,12 @@ fun App(){
                         currentScreen = Screen.TodoScreen
                         currentCategory = TodoCategories("All")
                     }
-//            Screen.Details -> DetailsScreen { currentScreen = Screen.Home }
+                    Screen.Settings -> {
+                        Settings()
+                    }
+                    Screen.Favorites -> {
+                        Favorites()
+                    }
                 }
             }
         }
@@ -118,5 +123,5 @@ fun App(){
 }
 
 enum class Screen{
-    Home, TodoScreen, AddTodoScreen
+    Home, TodoScreen, AddTodoScreen, Favorites, Settings
 }

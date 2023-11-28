@@ -21,6 +21,7 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val currentDateTodos: Flow<List<Todo>> = dao.getTodosByDate(LocalDate.now().toString())
     val importantTodos: Flow<List<Todo>> = dao.getImportantTodos()
     val scheduledTodos: Flow<List<Todo>> = dao.getScheduledTodos(LocalDate.now().toString())
+    val favoriteTodos: Flow<List<Todo>> = dao.getFavoriteTodos()
     val todosInBin: Flow<List<Todo>> = dao.getDeletedTodos()
 
     fun addTodo(todo: Todo) {
@@ -41,6 +42,11 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
 
     fun isScheduledEmpty(): Boolean = runBlocking{
         val todosList = scheduledTodos.firstOrNull()
+        todosList.isNullOrEmpty()
+    }
+
+    fun isFavoritesEmpty(): Boolean = runBlocking{
+        val todosList = favoriteTodos.firstOrNull()
         todosList.isNullOrEmpty()
     }
 
