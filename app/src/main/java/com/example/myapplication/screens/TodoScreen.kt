@@ -75,21 +75,7 @@ LazyColumn(
 
                      //This function needs to be moved to fun Todos to make it global for every todo
                      //Currently this is just visible for Today category todos
-                     fun clickToDelete(){
-                         toBeDeletedRows.iterator().forEach { element->
-                             buttonCoroutineScope.launch {
-
-                                 dao.delete(
-                                     element
-                                 )
-                             }
-                         }
-                     }
-                     IconButton(onClick = {
-                         clickToDelete()
-                     }) {
-                         Icon(Icons.Default.Delete, contentDescription ="Delete" )
-                     }
+                     TodoDeleteIcon()
                      Log.i("cat", "Todayyyyyyyyyy")
                  }
                  if(selectedCategory?.todoCategories == "All"){
@@ -97,6 +83,7 @@ LazyColumn(
                      Button(onClick = { onNavigate() } ) {
                          Text(text = "Go to Home Screen")
                      }
+                     TodoDeleteIcon()
                      Log.i("cat", "ALLLLLLLLL")
                  }
                  if(selectedCategory?.todoCategories == "Scheduled"){
@@ -109,6 +96,7 @@ LazyColumn(
                              Text(text = "Go to Home Screen")
                          }
                      }
+                     TodoDeleteIcon()
                      Log.i("cat", "Scheduled")
                  }
                  if(selectedCategory?.todoCategories == "Important"){
@@ -121,6 +109,7 @@ LazyColumn(
                              Text(text = "Go to Home Screen")
                          }
                      }
+                     TodoDeleteIcon()
                      Log.i("cat", "Important")
                  }
                  if(selectedCategory?.todoCategories == "Finished"){
@@ -131,15 +120,58 @@ LazyColumn(
                      Log.i("cat", "Finished")
                  }
                  if(selectedCategory?.todoCategories == "Bin"){
-                     Text(text = "No Todos here")  //Placeholder for now
+                     Todos(todo = todoViewModel.todosInBin, viewModel = todoViewModel)
                      Button(onClick = { onNavigate() }) {
                          Text(text = "Go to Home Screen")
                      }
+                     DeleteIcon()
                      Log.i("cat", "Bin")
                  }
              }
         }
      }
+}
+
+@Composable
+fun TodoDeleteIcon(){
+    val buttonCoroutineScope = rememberCoroutineScope()
+    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
+    fun clickToDelete(){
+        toBeDeletedRows.iterator().forEach { element->
+            buttonCoroutineScope.launch {
+
+                dao.delete(
+                    element
+                )
+            }
+        }
+    }
+    IconButton(onClick = {
+        clickToDelete()
+    }) {
+        Icon(Icons.Default.Delete, contentDescription ="Delete" )
+    }
+}
+
+@Composable
+fun DeleteIcon(){
+    val buttonCoroutineScope = rememberCoroutineScope()
+    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
+    fun clickToDelete(){
+        toBeDeletedRows.iterator().forEach { element->
+            buttonCoroutineScope.launch {
+
+                dao.deleteFromBin(
+                    element
+                )
+            }
+        }
+    }
+    IconButton(onClick = {
+        clickToDelete()
+    }) {
+        Icon(Icons.Default.Delete, contentDescription ="Delete" )
+    }
 }
 
 

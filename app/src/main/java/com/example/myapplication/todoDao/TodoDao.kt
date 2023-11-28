@@ -13,18 +13,24 @@ interface TodoDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(todo: Todo)
 
-    @Query("SELECT * FROM "+ Todo.TABLE_NAME)
+    @Query("SELECT * FROM "+ Todo.TABLE_NAME+ " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>
 
-    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate")
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate and isDeleted = false")
     fun getTodosByDate(currentDate: String): Flow<List<Todo>>
 
-    @Query("Delete from "+Todo.TABLE_NAME+ " where id = :id")
+    @Query("Update "+Todo.TABLE_NAME+ " set isDeleted = true where id = :id")
     suspend fun delete(id:Long)
 
-    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isImportant = true")
+    @Query("Delete from "+Todo.TABLE_NAME+ " WHERE id = :id")
+    suspend fun deleteFromBin(id:Long)
+
+    @Query("Select * from "+Todo.TABLE_NAME+ " WHERE isDeleted = true")
+    fun getDeletedTodos(): Flow<List<Todo>>
+
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isImportant = true and isDeleted = false")
     fun getImportantTodos(): Flow<List<Todo>>
 
-    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE scheduledDate != :currentDate AND scheduledDate IS NOT NULL AND scheduledDate != 'null'")
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE scheduledDate != :currentDate AND scheduledDate IS NOT NULL AND scheduledDate != 'null'  and isDeleted = false")
     fun getScheduledTodos(currentDate: String): Flow<List<Todo>>
 }

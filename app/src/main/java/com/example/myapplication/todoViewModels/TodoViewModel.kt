@@ -21,7 +21,7 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val currentDateTodos: Flow<List<Todo>> = dao.getTodosByDate(LocalDate.now().toString())
     val importantTodos: Flow<List<Todo>> = dao.getImportantTodos()
     val scheduledTodos: Flow<List<Todo>> = dao.getScheduledTodos(LocalDate.now().toString())
-
+    val todosInBin: Flow<List<Todo>> = dao.getDeletedTodos()
 
     fun addTodo(todo: Todo) {
         viewModelScope.launch(Dispatchers.IO) {
