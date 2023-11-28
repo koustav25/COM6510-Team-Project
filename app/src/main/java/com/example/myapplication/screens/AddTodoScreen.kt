@@ -56,8 +56,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
+import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -68,6 +70,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTodo(onNavigate: () -> Unit) {
+    val todoViewModel: TodoViewModel = viewModel()
+
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var isFav by remember{ mutableStateOf(false) }
@@ -75,7 +79,6 @@ fun AddTodo(onNavigate: () -> Unit) {
 
     val context = LocalContext.current
     val buttonCoroutineScope = rememberCoroutineScope()
-    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
 
     val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
     val timePickerState = rememberTimePickerState()
@@ -139,7 +142,7 @@ fun AddTodo(onNavigate: () -> Unit) {
 
             fun insertOnClick() {
                 buttonCoroutineScope.launch {
-                    dao.insert(
+                    todoViewModel.addTodo(
                         Todo(
                             title = title,
                             description = description,

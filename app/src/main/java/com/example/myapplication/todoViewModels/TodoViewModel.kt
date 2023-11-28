@@ -23,9 +23,9 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val scheduledTodos: Flow<List<Todo>> = dao.getScheduledTodos(LocalDate.now().toString())
 
 
-    fun addTodo(title: String, description: String) {
+    fun addTodo(todo: Todo) {
         viewModelScope.launch(Dispatchers.IO) {
-            addTodo(title, description)
+            dao.insert(todo)
         }
     }
 
