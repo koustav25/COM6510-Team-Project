@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -22,15 +23,18 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,14 +44,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TodoCategories
+import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+
+var toBeDeletedRows = hashSetOf<Long>()
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: () -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
+    val buttonCoroutineScope = rememberCoroutineScope()
+    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
 LazyColumn(
         modifier = Modifier
             .padding(5.dp)
@@ -61,6 +71,21 @@ LazyColumn(
                      Todos(todo = todoViewModel.currentDateTodos, todoViewModel)
                      Button(onClick = { onNavigate() }) {
                          Text(text = "Go to Home Screen")
+                     }
+                     fun clickToDelete(){
+                         toBeDeletedRows.iterator().forEach { element->
+                             buttonCoroutineScope.launch {
+
+                                 dao.delete(
+                                     element
+                                 )
+                             }
+                         }
+                     }
+                     IconButton(onClick = {
+                         clickToDelete()
+                     }) {
+                         Icon(Icons.Default.Delete, contentDescription ="Delete" )
                      }
                      Log.i("cat", "Todayyyyyyyyyy")
                  }
@@ -109,9 +134,11 @@ LazyColumn(
      }
 }
 
+
 @Composable
 fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
     val todosState by todo.collectAsState(initial = emptyList())
+
     Column {
         todosState.forEach { todoItem ->
             val isChecked = remember{ mutableStateOf(false) }
@@ -149,6 +176,12 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                         Checkbox(checked = isChecked.value, onCheckedChange = {
                             isChecked.value = it
                         })
+                        if(isChecked.value){
+                            toBeDeletedRows.add(todoItem.id)
+                        }else{
+                            if(toBeDeletedRows.contains(todoItem.id))
+                                toBeDeletedRows.remove(todoItem.id)
+                        }
 
                         Text(
                             modifier = Modifier.fillMaxWidth(0.9f),

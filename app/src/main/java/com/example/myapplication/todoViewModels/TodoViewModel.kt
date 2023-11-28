@@ -21,6 +21,8 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val currentDateTodos: Flow<List<Todo>> = dao.getTodosByDate(LocalDate.now().toString())
     val importantTodos: Flow<List<Todo>> = dao.getImportantTodos()
 
+
+
     fun addTodo(title: String, description: String) {
         viewModelScope.launch(Dispatchers.IO) {
             addTodo(title, description)
@@ -35,5 +37,9 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     fun isImportantEmpty(): Boolean = runBlocking {
         val todosList = importantTodos.firstOrNull()
         todosList.isNullOrEmpty()
+    }
+
+    suspend fun deleteSelectedTodos(id:Long) {
+        dao.delete(id)
     }
 }

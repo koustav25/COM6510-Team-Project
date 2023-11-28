@@ -19,6 +19,9 @@ interface TodoDao {
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate")
     fun getTodosByDate(currentDate: String): Flow<List<Todo>>
 
+    @Query("Delete from "+Todo.TABLE_NAME+ " where id = :id")
+    suspend fun delete(id:Long)
+
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isImportant = true")
     fun getImportantTodos(): Flow<List<Todo>>
 }
