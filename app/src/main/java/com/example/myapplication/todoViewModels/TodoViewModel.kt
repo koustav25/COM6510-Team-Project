@@ -20,7 +20,7 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val allTodos: Flow<List<Todo>> = dao.getAllTodos()
     val currentDateTodos: Flow<List<Todo>> = dao.getTodosByDate(LocalDate.now().toString())
     val importantTodos: Flow<List<Todo>> = dao.getImportantTodos()
-
+    val scheduledTodos: Flow<List<Todo>> = dao.getScheduledTodos(LocalDate.now().toString())
 
 
     fun addTodo(title: String, description: String) {
@@ -36,6 +36,11 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
 
     fun isImportantEmpty(): Boolean = runBlocking {
         val todosList = importantTodos.firstOrNull()
+        todosList.isNullOrEmpty()
+    }
+
+    fun isScheduledEmpty(): Boolean = runBlocking{
+        val todosList = scheduledTodos.firstOrNull()
         todosList.isNullOrEmpty()
     }
 

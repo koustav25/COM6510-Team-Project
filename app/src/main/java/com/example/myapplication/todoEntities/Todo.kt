@@ -12,7 +12,11 @@ data class Todo(
     val description: String,
     val date: String,
     val isFavorite: Boolean,
-    val isImportant: Boolean
+    val isImportant: Boolean,
+    val scheduledDate: String,
+    val scheduledTime: String,
+    val isFinished: Boolean,
+    val isDeleted: Boolean
 ){
     companion object{
         const val TABLE_NAME = "todos"

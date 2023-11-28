@@ -72,6 +72,9 @@ LazyColumn(
                      Button(onClick = { onNavigate() }) {
                          Text(text = "Go to Home Screen")
                      }
+
+                     //This function needs to be moved to fun Todos to make it global for every todo
+                     //Currently this is just visible for Today category todos
                      fun clickToDelete(){
                          toBeDeletedRows.iterator().forEach { element->
                              buttonCoroutineScope.launch {
@@ -97,9 +100,14 @@ LazyColumn(
                      Log.i("cat", "ALLLLLLLLL")
                  }
                  if(selectedCategory?.todoCategories == "Scheduled"){
-                     Text(text = "No Todos here in Scheduled") //Placeholder for now
-                     Button(onClick = { onNavigate() }) {
-                         Text(text = "Go to Home Screen")
+                     if(todoViewModel.isScheduledEmpty()){
+                         Text(text = "No Scheduled todos")
+                     }
+                     else{
+                         Todos(todo = todoViewModel.scheduledTodos, todoViewModel)
+                         Button(onClick = { onNavigate() }) {
+                             Text(text = "Go to Home Screen")
+                         }
                      }
                      Log.i("cat", "Scheduled")
                  }

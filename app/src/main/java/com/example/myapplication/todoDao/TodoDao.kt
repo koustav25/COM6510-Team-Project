@@ -24,4 +24,7 @@ interface TodoDao {
 
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isImportant = true")
     fun getImportantTodos(): Flow<List<Todo>>
+
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE scheduledDate != :currentDate AND scheduledDate IS NOT NULL AND scheduledDate != 'null'")
+    fun getScheduledTodos(currentDate: String): Flow<List<Todo>>
 }
