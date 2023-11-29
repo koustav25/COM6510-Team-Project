@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -49,7 +50,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TodoCategories
 import com.example.myapplication.todoDatabase.TodoDatabase
+import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
+import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -58,8 +61,9 @@ var toBeDeletedRows = hashSetOf<Long>()
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: () -> Unit){
+fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
+    val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
     val buttonCoroutineScope = rememberCoroutineScope()
     val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
 LazyColumn(
@@ -72,20 +76,24 @@ LazyColumn(
              }
              else{
                  if(selectedCategory?.todoCategories == "Today"){
-                     Todos(todo = todoViewModel.currentDateTodos, todoViewModel)
-                     Button(onClick = { onNavigate() }) {
-                         Text(text = "Go to Home Screen")
+                     if(subtaskTodoViewModel.isEmpty()){
+                         Todos(todo = todoViewModel.currentDateTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                                 todoId -> onNavigate(todoId)
+                         }
                      }
-
+                     else{
+                         Todos(todo = todoViewModel.currentDateTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                                 todoId -> onNavigate(todoId)
+                         }
+                     }
                      //This function needs to be moved to fun Todos to make it global for every todo
                      //Currently this is just visible for Today category todos
                      TodoDeleteIcon()
                      Log.i("cat", "Todayyyyyyyyyy")
                  }
                  if(selectedCategory?.todoCategories == "All"){
-                     Todos(todo = todoViewModel.allTodos, todoViewModel)
-                     Button(onClick = { onNavigate() } ) {
-                         Text(text = "Go to Home Screen")
+                     Todos(todo = todoViewModel.allTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                             todoId -> onNavigate(todoId)
                      }
                      TodoDeleteIcon()
                      Log.i("cat", "ALLLLLLLLL")
@@ -95,9 +103,8 @@ LazyColumn(
                          Text(text = "No Scheduled todos")
                      }
                      else{
-                         Todos(todo = todoViewModel.scheduledTodos, todoViewModel)
-                         Button(onClick = { onNavigate() }) {
-                             Text(text = "Go to Home Screen")
+                         Todos(todo = todoViewModel.scheduledTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks ,todoViewModel){
+                                 todoId -> onNavigate(todoId)
                          }
                      }
                      TodoDeleteIcon()
@@ -108,25 +115,20 @@ LazyColumn(
                          Text(text = "No Important todos")
                      }
                      else{
-                         Todos(todo = todoViewModel.importantTodos, viewModel = todoViewModel)
-                         Button(onClick = { onNavigate() }) {
-                             Text(text = "Go to Home Screen")
+                         Todos(todo = todoViewModel.importantTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, viewModel = todoViewModel){
+                                 todoId -> onNavigate(todoId)
                          }
                      }
                      TodoDeleteIcon()
                      Log.i("cat", "Important")
                  }
                  if(selectedCategory?.todoCategories == "Finished"){
-                     Text(text = "No Todos here in Finished")  //Placeholder for now
-                     Button(onClick = { onNavigate() }) {
-                         Text(text = "Go to Home Screen")
-                     }
+                     Text(text = "No Todos here in Finished")
                      Log.i("cat", "Finished")
                  }
                  if(selectedCategory?.todoCategories == "Bin"){
-                     Todos(todo = todoViewModel.todosInBin, viewModel = todoViewModel)
-                     Button(onClick = { onNavigate() }) {
-                         Text(text = "Go to Home Screen")
+                     Todos(todo = todoViewModel.todosInBin, subtaskTodo = subtaskTodoViewModel.allSubtasks, viewModel = todoViewModel){
+                             todoId -> onNavigate(todoId)
                      }
                      DeleteIcon()
                      Log.i("cat", "Bin")
@@ -180,8 +182,9 @@ fun DeleteIcon(){
 
 
 @Composable
-fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
+fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit){
     val todosState by todo.collectAsState(initial = emptyList())
+    val subtaskTodoState by subtaskTodo.collectAsState(initial = emptyList())
 
     Column {
         todosState.forEach { todoItem ->
@@ -342,6 +345,48 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
 
                                 }
                             })
+
+                        //Subtasks
+                        if (subtaskTodoState.isEmpty()) {
+                            Text(text = "No subtasks")
+                        } else {
+                            subtaskTodoState.forEach { subtaskItem ->
+                                val subtaskIsChecked = remember { mutableStateOf(false) }
+                                val textDecoration = if (subtaskIsChecked.value){ TextDecoration.LineThrough } else if(isChecked.value) { TextDecoration.LineThrough } else null
+                                Row(
+                                    modifier = Modifier
+                                        .padding(5.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (subtaskItem.id == todoItem.id) {
+                                        if(isChecked.value){
+                                            Checkbox(checked = isChecked.value, onCheckedChange = {})
+                                        }
+                                        else{
+                                            Checkbox(checked = subtaskIsChecked.value, onCheckedChange = {
+                                                subtaskIsChecked.value = it
+                                            })
+                                        }
+
+
+                                        Text(
+                                            modifier = Modifier.fillMaxWidth(0.9f),
+                                            text = buildAnnotatedString {
+                                                withStyle(style = SpanStyle(textDecoration = textDecoration)) {
+                                                    append(subtaskItem.subtaskTitle)
+                                                }
+                                            },
+                                        )
+                                    }
+                                    else{
+                                        Text(text = "No subtasks")
+                                    }
+                                }
+                            }
+                        }
+
+                        //Divider
                         Divider(modifier = Modifier.padding(vertical = 5.dp),
                             thickness = 1.dp,
                         )
@@ -359,6 +404,23 @@ fun Todos(todo: Flow<List<Todo>>, viewModel: TodoViewModel){
                                     contentDescription = "Edit Todo"
                                 )
                             }
+
+                            //Add Subtask
+                            Column(
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    modifier = Modifier.clickable(onClick = {
+                                        onNavigate(todoItem.id)
+                                        Log.i("id", "${onNavigate(todoItem.id)}")
+                                    }),
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = "Add Subtask"
+                                )
+                                Text(text = "Add Subtask")
+                            }
+
                             //Edit Todo Button
                             IconButton(onClick = { }) {
                                 Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Todo")

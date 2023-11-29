@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.myapplication.screens.AddSubtaskTodo
 import com.example.myapplication.screens.AddTodo
 import com.example.myapplication.screens.CategoryScreen
 import com.example.myapplication.screens.TodoDetail
@@ -97,16 +98,24 @@ fun App(){
             var currentCategory by remember {
                 mutableStateOf<TodoCategories?>(null)
             }
+            var selectedTodoId by remember {
+                mutableStateOf(0L)
+            }
             MaterialTheme {
                 when (currentScreen) {
                     Screen.Home -> CategoryScreen(categories = TodoCategoryData()) { selectedCategory ->
                         currentScreen = Screen.TodoScreen
                         currentCategory = selectedCategory
                     }
-                    Screen.TodoScreen -> TodoDetail(selectedCategory = currentCategory) {
-                        currentScreen = Screen.Home
+                    Screen.TodoScreen -> TodoDetail(selectedCategory = currentCategory) { todoId ->
+                        currentScreen = Screen.AddSubtask
+                        selectedTodoId = todoId
                     }
                     Screen.AddTodoScreen -> AddTodo() {
+                        currentScreen = Screen.TodoScreen
+                        currentCategory = TodoCategories("All")
+                    }
+                    Screen.AddSubtask -> AddSubtaskTodo(todoId = selectedTodoId){
                         currentScreen = Screen.TodoScreen
                         currentCategory = TodoCategories("All")
                     }
@@ -114,7 +123,9 @@ fun App(){
                         Settings()
                     }
                     Screen.Favorites -> {
-                        Favorites()
+                        Favorites(){
+                            currentScreen = Screen.AddSubtask
+                        }
                     }
                 }
             }
@@ -123,5 +134,5 @@ fun App(){
 }
 
 enum class Screen{
-    Home, TodoScreen, AddTodoScreen, Favorites, Settings
+    Home, TodoScreen, AddTodoScreen, AddSubtask, Favorites, Settings
 }

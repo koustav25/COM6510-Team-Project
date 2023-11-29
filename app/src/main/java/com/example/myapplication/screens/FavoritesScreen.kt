@@ -7,11 +7,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.screens.Todos
+import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
 
 @Composable
-fun Favorites(){
+fun Favorites(onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
+    val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
     LazyColumn(
         modifier = Modifier
             .padding(5.dp)
@@ -21,7 +23,9 @@ fun Favorites(){
             if (todoViewModel.isFavoritesEmpty()) {
                 Text(text = "No Favorite todos")
             } else {
-                Todos(todo = todoViewModel.favoriteTodos, todoViewModel)
+                Todos(todo = todoViewModel.favoriteTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                        todoId -> onNavigate(todoId)
+                }
             }
         }
     }

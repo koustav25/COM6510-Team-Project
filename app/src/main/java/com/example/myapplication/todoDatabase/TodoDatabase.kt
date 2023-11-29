@@ -4,13 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.myapplication.todoDao.SubtaskTodoDao
 import com.example.myapplication.todoDao.TodoDao
+import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 
-@Database(entities = [Todo::class], version = 1, exportSchema = false)
+@Database(entities = [Todo::class, SubtaskTodo::class], version = 1, exportSchema = false)
 abstract class TodoDatabase : RoomDatabase() {
 
     abstract fun todoDao(): TodoDao
+    abstract fun subtaskDao(): SubtaskTodoDao
 
     companion object {
         private const val DB_NAME = "Todo_DB"
