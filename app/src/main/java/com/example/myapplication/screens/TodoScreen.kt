@@ -190,8 +190,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
             val isChecked = remember{ mutableStateOf(false) }
+            val coroutineScope = rememberCoroutineScope()
             val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
-            var isFavClicked by remember { mutableStateOf(false) }
+            var isFavClicked by remember { mutableStateOf(todoItem.isFavorite) }
             var isImportantClicked by remember { mutableStateOf(false) }
             val favIcon = if (isFavClicked){
                 Icons.Filled.Favorite
@@ -241,7 +242,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        if (todoItem.isFavorite) {
+                        if (isFavClicked) {
                             var isFavClicked by remember { mutableStateOf(todoItem.isFavorite) }
                             val favIcon = if (isFavClicked) {
                                 Icons.Filled.Favorite
@@ -253,9 +254,12 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                 contentDescription = "Already Favorite",
                                 modifier = Modifier.clickable {
                                     isFavClicked = !isFavClicked
+                                    coroutineScope.launch {
+                                        viewModel.setFavourite(todoItem.id, isFavClicked)
+                                    }
                                 }
                             )
-                        } else {
+                        }else {
                             Icon(
                                 imageVector = favIcon,
                                 contentDescription = "Not Favorite",

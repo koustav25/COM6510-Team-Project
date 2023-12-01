@@ -36,4 +36,7 @@ interface TodoDao {
 
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFavorite = true")
     fun getFavoriteTodos(): Flow<List<Todo>>
+
+    @Query("Update "+Todo.TABLE_NAME+ " set isFavorite = :isFavourite where id = :id")
+    suspend fun setFavourite(id:Long, isFavourite: Boolean)
 }

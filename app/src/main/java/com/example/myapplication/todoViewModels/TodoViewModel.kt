@@ -45,6 +45,16 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
         todosList.isNullOrEmpty()
     }
 
+    fun setFavourite(todoItemId:Long, isFavClicked:Boolean ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                dao.setFavourite(todoItemId, isFavClicked)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun isFavoritesEmpty(): Boolean = runBlocking{
         val todosList = favoriteTodos.firstOrNull()
         todosList.isNullOrEmpty()
