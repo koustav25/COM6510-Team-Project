@@ -55,6 +55,15 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun setImportant(todoItemId:Long, isImportant:Boolean ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                dao.setImportant(todoItemId, isImportant)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
     fun isFavoritesEmpty(): Boolean = runBlocking{
         val todosList = favoriteTodos.firstOrNull()
         todosList.isNullOrEmpty()

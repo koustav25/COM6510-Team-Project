@@ -39,4 +39,7 @@ interface TodoDao {
 
     @Query("Update "+Todo.TABLE_NAME+ " set isFavorite = :isFavourite where id = :id")
     suspend fun setFavourite(id:Long, isFavourite: Boolean)
+
+    @Query("Update "+Todo.TABLE_NAME+ " set isImportant = :isImportant where id = :id")
+    suspend fun setImportant(id:Long, isImportant: Boolean)
 }

@@ -193,7 +193,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             val coroutineScope = rememberCoroutineScope()
             val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
             var isFavClicked by remember { mutableStateOf(todoItem.isFavorite) }
-            var isImportantClicked by remember { mutableStateOf(false) }
+            var isImportantClicked by remember { mutableStateOf(todoItem.isImportant) }
             val favIcon = if (isFavClicked){
                 Icons.Filled.Favorite
             }else{
@@ -296,7 +296,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                 }
                             )
                         }
-                        if (todoItem.isImportant) {
+                        if (isImportantClicked) {
                             var isImportantClicked by remember { mutableStateOf(todoItem.isImportant) }
                             val impIcon = if (isImportantClicked){
                                 Icons.Filled.Info
@@ -308,6 +308,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                 contentDescription = "Already Favorite",
                                 modifier = Modifier.clickable {
                                     isImportantClicked = !isImportantClicked
+                                    coroutineScope.launch {
+                                        viewModel.setImportant(todoItem.id, isImportantClicked)
+                                    }
                                 }
                             )
                         } else {
