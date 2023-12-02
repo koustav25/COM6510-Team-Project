@@ -104,20 +104,23 @@ fun App(){
             MaterialTheme {
                 when (currentScreen) {
                     Screen.Home -> CategoryScreen(categories = TodoCategoryData()) { selectedCategory ->
+                        title = selectedCategory.todoCategories+" Todos"
                         currentScreen = Screen.TodoScreen
                         currentCategory = selectedCategory
                     }
                     Screen.TodoScreen -> TodoDetail(selectedCategory = currentCategory) { todoId ->
+                        title = "Add subtask"
                         currentScreen = Screen.AddSubtask
                         selectedTodoId = todoId
                     }
-                    Screen.AddTodoScreen -> AddTodo() {
+                    Screen.AddTodoScreen -> AddTodo(templateTodos = TemplateTodosData()) {
                         currentScreen = Screen.TodoScreen
                         currentCategory = TodoCategories("All")
                     }
                     Screen.AddSubtask -> AddSubtaskTodo(todoId = selectedTodoId){
                         currentScreen = Screen.TodoScreen
                         currentCategory = TodoCategories("All")
+                        title = "All Todos"
                     }
                     Screen.Settings -> {
                         Settings()

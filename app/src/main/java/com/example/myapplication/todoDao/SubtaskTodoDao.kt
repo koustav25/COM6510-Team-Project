@@ -16,4 +16,7 @@ interface SubtaskTodoDao {
     @Query("SELECT * FROM " + SubtaskTodo.SUBTASK_TABLE_NAME)
     fun getAllSubtasks(): Flow<List<SubtaskTodo>>
 
+    @Query("SELECT * FROM "+ SubtaskTodo.SUBTASK_TABLE_NAME+ " WHERE id= :id")
+    fun getSubtasksById(id: Long): Flow<List<SubtaskTodo>>
+
 }

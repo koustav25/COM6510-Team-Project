@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -24,10 +25,13 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val favoriteTodos: Flow<List<Todo>> = dao.getFavoriteTodos()
     val todosInBin: Flow<List<Todo>> = dao.getDeletedTodos()
 
-    fun addTodo(todo: Todo) {
+    suspend fun addTodo(todo: Todo): Long {
+        val deferred = CompletableDeferred<Long>()
         viewModelScope.launch(Dispatchers.IO) {
-            dao.insert(todo)
+            val insertedId = dao.insert(todo = todo)
+            deferred.complete(insertedId)
         }
+        return deferred.await()
     }
 
     fun isEmpty(): Boolean = runBlocking{

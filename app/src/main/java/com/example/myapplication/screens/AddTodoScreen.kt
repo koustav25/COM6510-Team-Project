@@ -1,8 +1,10 @@
 package com.example.myapplication.screens
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -15,8 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
@@ -26,11 +31,17 @@ import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,10 +50,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,14 +66,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.TemplateTodos
 import com.example.myapplication.todoDatabase.TodoDatabase
+import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
+import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -71,13 +92,16 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTodo(onNavigate: () -> Unit) {
+fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     val todoViewModel: TodoViewModel = viewModel()
+    val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var isFav by remember{ mutableStateOf(false) }
     var isImp by remember{ mutableStateOf(false) }
+
+    var subTitle by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val buttonCoroutineScope = rememberCoroutineScope()
@@ -95,7 +119,8 @@ fun AddTodo(onNavigate: () -> Unit) {
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
 
-
+    val isSubtaskChecked = remember { mutableStateOf(false) }
+    val textDecoration = if (isSubtaskChecked.value) TextDecoration.LineThrough else null
 
     var isFavClicked by remember { mutableStateOf(false) }
     var isImportantClicked by remember{ mutableStateOf(false) }
@@ -109,6 +134,10 @@ fun AddTodo(onNavigate: () -> Unit) {
     }else{
         Icons.Outlined.Info
     }
+
+    var dropDownExpanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf(templateTodos[0]) }
+
     LazyColumn(
         modifier = Modifier
             .padding(16.dp)
@@ -116,195 +145,508 @@ fun AddTodo(onNavigate: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            // Todo Title TextField
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Todo Title") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .fillMaxWidth()
+            //Templates
+            Text(
+                text = "Select from templates",
             )
-
-            // Todo Description TextField
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Todo Description") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .fillMaxWidth()
-            )
-
-            fun insertOnClick() {
-                buttonCoroutineScope.launch {
-                    todoViewModel.addTodo(
-                        Todo(
-                            title = title,
-                            description = description,
-                            date = LocalDate.now().toString(),
-                            isFavorite = isFav,
-                            isImportant = isImp,
-                            scheduledDate = dateStoreInDatabase,
-                            scheduledTime = timeStoreInDatabase,
-                            isFinished = isFinished,
-                            isDeleted = isDeleted
-                        )
+            ExposedDropdownMenuBox(
+                expanded = dropDownExpanded,
+                onExpandedChange = { dropDownExpanded = !dropDownExpanded },
+                modifier = Modifier.padding(2.dp)
+            ) {
+                TextField(value = selectedText.taskName,
+                    onValueChange = { },
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownExpanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = dropDownExpanded,
+                    onDismissRequest = { dropDownExpanded = false }
+                ) {templateTodos.forEach { templates ->
+                    DropdownMenuItem(
+                        text = { templates.taskName },
+                        onClick = {
+                            selectedText = templates
+                            dropDownExpanded = false
+                        }
                     )
                 }
-            }
-
-            // Add Todo Button
-            Button(
-                onClick = {
-                    if (title.isNotBlank()) {
-                        insertOnClick()
-                        getToast(context, "Todo added!")
-                        onNavigate()
-                    } else {
-                        getToast(context, "Title cannot be empty")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Add Todo")
-            }
-            Row {
-                IconButton(
-                    onClick = {
-                        isFavClicked = !isFavClicked
-                        isFav = !isFav
-                    }
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .size(10.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-
-                    ) {
-                        Icon(favIcon, contentDescription = "Favorite")
-                        Text(text = "Fav", fontSize = 8.sp)
-                    }
-                }
-                IconButton(
-                    onClick = {
-                        isImportantClicked = !isImportantClicked
-                        isImp = !isImp
-                    }
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .size(10.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-
-                    ) {
-                        Icon(impIcon, contentDescription = "Important")
-                        Text(text = "Imp", fontSize = 8.sp)
-                    }
-                }
-                //Date Picker
-                IconButton(onClick = { showDialogForDate = !showDialogForDate }) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .size(10.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Filled.DateRange, "Date Picker"
-                        )
-                        Text(text = "Date", fontSize = 8.sp)
-                    }
-                }
-
-                //Time Picker
-                IconButton(onClick = { showDialogForTime = !showDialogForTime }) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .size(10.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Outlined.DateRange, "Time Picker"
-                        )
-                        Text(text = "Time", fontSize = 8.sp)
-                    }
                 }
             }
 
-            //Handling Date dialog
-            if (showDialogForDate) {
-                DatePickerDialog(
-                    onDismissRequest = { showDialogForDate = false },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            val selectedDateMillis = datePickerState.selectedDateMillis
-                            if(selectedDateMillis!=null){
-                                dateStoreInDatabase = handleSelectedDate(selectedDateMillis)
+            LaunchedEffect(selectedText){
+                title = selectedText.todoTitle
+                description = selectedText.todoDescription
+            }
+
+            //Editing the templates
+            if(selectedText.taskName != "Select a task") {
+                // Todo Title TextField
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Todo Title") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .fillMaxWidth()
+                )
+
+                // Todo Description TextField
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Todo Description") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .fillMaxWidth()
+                )
+
+                //Subtasks && Edit
+                selectedText.subTaskDetails.forEach { subtask ->
+                    var isSubtaskExpanded by remember { mutableStateOf(false) }
+                    var subtaskTitle by remember { mutableStateOf(subtask.subtaskTitle) }
+                    LaunchedEffect(subtask){
+                        subtaskTitle = subtask.subtaskTitle
+                    }
+                    Card(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                            .fillMaxWidth()
+                            .clickable(onClick = { isSubtaskExpanded = !isSubtaskExpanded }),
+                        shape = RoundedCornerShape(CornerSize(10.dp)),
+                        elevation = CardDefaults.cardElevation(2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(5.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            if(isSubtaskExpanded){
+                                Row(
+                                    modifier = Modifier
+                                        .padding(5.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    OutlinedTextField(
+                                        value = subtaskTitle,
+                                        onValueChange = { subtaskTitle = it },
+                                        label = { Text("Subtask Title") },
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        modifier = Modifier
+                                            .padding(bottom = 8.dp)
+                                    )
+                                    IconButton(onClick = {
+                                        isSubtaskExpanded = false
+                                        subtask.subtaskTitle = subtaskTitle
+                                        subTitle = subtask.subtaskTitle
+                                    })
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Filled.Check,
+                                            contentDescription = "Add"
+                                        )
+                                    }
+                                }
                             }
-                            showDialogForDate = false
-                            snackScope.launch{
-                                snackState.showSnackbar(
-                                    "Selected Date: ${datePickerState.selectedDateMillis}"
+                            else {
+                                Checkbox(
+                                    checked = isSubtaskChecked.value,
+                                    onCheckedChange = {
+                                        isSubtaskChecked.value = it
+                                    }
+                                )
+
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(0.9f),
+                                    text = buildAnnotatedString {
+                                        withStyle(style = SpanStyle(textDecoration = textDecoration)) {
+                                            append(subtask.subtaskTitle)
+                                            subTitle = subtask.subtaskTitle
+                                        }
+                                    },
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }
-                        ) {
-                            Text(text = "Ok")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { showDialogForDate = false }
-                        ) {
-                            Text(text = "Cancel")
+                    }
+                }
+
+                //insert subtasks
+                fun insertTemplateTaskTodos() {
+                    buttonCoroutineScope.launch {
+                        val insertedTodoId = todoViewModel.addTodo(
+                            Todo(
+                                title = title,
+                                description = description,
+                                date = LocalDate.now().toString(),
+                                isFavorite = isFav,
+                                isImportant = isImp,
+                                scheduledDate = dateStoreInDatabase,
+                                scheduledTime = timeStoreInDatabase,
+                                isFinished = isFinished,
+                                isDeleted = isDeleted
+                            )
+                        )
+                        Log.i("ids", "Todo inserted successfull: ${insertedTodoId}")
+                        for(subtask in selectedText.subTaskDetails) {
+                            subtaskTodoViewModel.addSubtaskTodo(
+                                SubtaskTodo(
+                                    id = insertedTodoId,
+                                    subtaskTitle = subtask.subtaskTitle,
+                                    subtaskScheduledDate = dateStoreInDatabase,
+                                    subtaskScheduledTime = timeStoreInDatabase,
+                                    isSubtaskCompleted = isFinished
+                                )
+                            )
+                            Log.i("ids", "Subtask: ${insertedTodoId}")
                         }
                     }
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        modifier = Modifier.padding(8.dp)
-                    )
                 }
-            }
 
-            //Handling Time Dialog
-            if (showDialogForTime) {
-                TimePickerDialog(
-                    onCancel = { showDialogForTime = false },
-                    onConfirm = {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                        cal.set(Calendar.MINUTE, timePickerState.minute)
-                        cal.isLenient = false
-                        timeStoreInDatabase = timeFormatter.format(cal.time)
-                        snackScope.launch {
-                            snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
+                Button(
+                    onClick = {
+                        if (title.isNotBlank()) {
+                            insertTemplateTaskTodos()
+                            getToast(context, "Data added successfully")
+                            onNavigate()
+                        } else {
+                            getToast(context, "Title cannot be empty")
                         }
-                        showDialogForTime = false
-                    }) {
-                    TimePicker(state = timePickerState)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Add Todo")
                 }
-            }
 
-            //Horizontal Divider line
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-        }
+                Row {
+                    IconButton(
+                        onClick = {
+                            isFavClicked = !isFavClicked
+                            isFav = !isFav
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+
+                        ) {
+                            Icon(favIcon, contentDescription = "Favorite")
+                            Text(text = "Fav", fontSize = 8.sp)
+                        }
+                    }
+                    IconButton(
+                        onClick = {
+                            isImportantClicked = !isImportantClicked
+                            isImp = !isImp
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+
+                        ) {
+                            Icon(impIcon, contentDescription = "Important")
+                            Text(text = "Imp", fontSize = 8.sp)
+                        }
+                    }
+                    //Date Picker
+                    IconButton(onClick = { showDialogForDate = !showDialogForDate }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Filled.DateRange, "Date Picker"
+                            )
+                            Text(text = "Date", fontSize = 8.sp)
+                        }
+                    }
+
+                    //Time Picker
+                    IconButton(onClick = { showDialogForTime = !showDialogForTime }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Outlined.Info, "Time Picker"
+                            )
+                            Text(text = "Time", fontSize = 8.sp)
+                        }
+                    }
+
+                }
+                if (showDialogForDate) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDialogForDate = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                val selectedDateMillis = datePickerState.selectedDateMillis
+                                if(selectedDateMillis!=null){
+                                    dateStoreInDatabase = handleSelectedDate(selectedDateMillis)
+                                }
+                                showDialogForDate = false
+                                snackScope.launch{
+                                    snackState.showSnackbar(
+                                        "Selected Date: ${datePickerState.selectedDateMillis}"
+                                    )
+                                }
+                            }
+                            ) {
+                                Text(text = "Ok")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { showDialogForDate = false }
+                            ) {
+                                Text(text = "Cancel")
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = datePickerState,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+                if (showDialogForTime) {
+                    TimePickerDialog(
+                        onCancel = { showDialogForTime = false },
+                        onConfirm = {
+                            val cal = Calendar.getInstance()
+                            cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                            cal.set(Calendar.MINUTE, timePickerState.minute)
+                            cal.isLenient = false
+                            timeStoreInDatabase = timeFormatter.format(cal.time)
+                            snackScope.launch {
+                                snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
+                            }
+                            showDialogForTime = false
+                        }) {
+                        TimePicker(state = timePickerState)
+                    }
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+            }
+            else {
+                // Todo Title TextField
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Todo Title") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .fillMaxWidth()
+                )
+
+                // Todo Description TextField
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Todo Description") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .fillMaxWidth()
+                )
+
+                fun insertTodo() {
+                    buttonCoroutineScope.launch {
+                        todoViewModel.addTodo(
+                            Todo(
+                                title = title,
+                                description = description,
+                                date = LocalDate.now().toString(),
+                                isFavorite = isFav,
+                                isImportant = isImp,
+                                scheduledDate = dateStoreInDatabase,
+                                scheduledTime = timeStoreInDatabase,
+                                isFinished = isFinished,
+                                isDeleted = isDeleted
+                            )
+                        )
+                    }
+                }
+
+                // Add Todo Button
+                Button(
+                    onClick = {
+                        if (title.isNotBlank()) {
+                            insertTodo()
+                            getToast(context, "Todo added!")
+                            onNavigate()
+                        } else {
+                            getToast(context, "Title cannot be empty")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Add Todo")
+                }
+                Row {
+                    IconButton(
+                        onClick = {
+                            isFavClicked = !isFavClicked
+                            isFav = !isFav
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+
+                        ) {
+                            Icon(favIcon, contentDescription = "Favorite")
+                            Text(text = "Fav", fontSize = 8.sp)
+                        }
+                    }
+                    IconButton(
+                        onClick = {
+                            isImportantClicked = !isImportantClicked
+                            isImp = !isImp
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+
+                        ) {
+                            Icon(impIcon, contentDescription = "Important")
+                            Text(text = "Imp", fontSize = 8.sp)
+                        }
+                    }
+                    //Date Picker
+                    IconButton(onClick = { showDialogForDate = !showDialogForDate }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Filled.DateRange, "Date Picker"
+                            )
+                            Text(text = "Date", fontSize = 8.sp)
+                        }
+                    }
+
+                    //Time Picker
+                    IconButton(onClick = { showDialogForTime = !showDialogForTime }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Outlined.DateRange, "Time Picker"
+                            )
+                            Text(text = "Time", fontSize = 8.sp)
+                        }
+                    }
+                }
+
+                //Handling Date dialog
+                if (showDialogForDate) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDialogForDate = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                val selectedDateMillis = datePickerState.selectedDateMillis
+                                if (selectedDateMillis != null) {
+                                    dateStoreInDatabase = handleSelectedDate(selectedDateMillis)
+                                }
+                                showDialogForDate = false
+                                snackScope.launch {
+                                    snackState.showSnackbar(
+                                        "Selected Date: ${datePickerState.selectedDateMillis}"
+                                    )
+                                }
+                            }
+                            ) {
+                                Text(text = "Ok")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { showDialogForDate = false }
+                            ) {
+                                Text(text = "Cancel")
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = datePickerState,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+
+                //Handling Time Dialog
+                if (showDialogForTime) {
+                    TimePickerDialog(
+                        onCancel = { showDialogForTime = false },
+                        onConfirm = {
+                            val cal = Calendar.getInstance()
+                            cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                            cal.set(Calendar.MINUTE, timePickerState.minute)
+                            cal.isLenient = false
+                            timeStoreInDatabase = timeFormatter.format(cal.time)
+                            snackScope.launch {
+                                snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
+                            }
+                            showDialogForTime = false
+                        }) {
+                        TimePicker(state = timePickerState)
+                    }
+                }
+
+                //Horizontal Divider line
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+            }
         }
     }
+}
 
 //Other Functions
 fun getToast(context: Context, msg: String){

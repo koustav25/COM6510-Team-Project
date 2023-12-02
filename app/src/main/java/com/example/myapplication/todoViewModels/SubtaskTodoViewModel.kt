@@ -28,4 +28,10 @@ class SubtaskTodoViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun getSubtasksById(todoId: Long){
+        viewModelScope.launch(Dispatchers.IO){
+            subtaskDao.getSubtasksById(todoId)
+        }
+    }
+
 }

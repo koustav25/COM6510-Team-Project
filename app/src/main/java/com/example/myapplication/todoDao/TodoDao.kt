@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface TodoDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(todo: Todo)
+    suspend fun insert(todo: Todo): Long
 
     @Query("SELECT * FROM "+ Todo.TABLE_NAME+ " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>
