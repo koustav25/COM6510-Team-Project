@@ -14,15 +14,12 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -64,8 +61,6 @@ var toBeDeletedRows = hashSetOf<Long>()
 fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
     val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
-    val buttonCoroutineScope = rememberCoroutineScope()
-    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
 LazyColumn(
         modifier = Modifier
             .padding(5.dp)
@@ -357,26 +352,34 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         if (subtaskTodoState.isEmpty()) {
                             Text(text = "No subtasks")
                         } else {
-                            subtaskTodoState.forEach { subtaskItem ->
-                                val subtaskIsChecked = remember { mutableStateOf(false) }
-                                val textDecoration = if (subtaskIsChecked.value){ TextDecoration.LineThrough } else if(isChecked.value) { TextDecoration.LineThrough } else null
-                                Row(
-                                    modifier = Modifier
-                                        .padding(5.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    if (subtaskItem.id == todoItem.id) {
-                                        if(isChecked.value){
-                                            Checkbox(checked = isChecked.value, onCheckedChange = {})
+                            subtaskTodoState.filter{it.id == todoItem.id}
+                                .forEach{ subtaskItem ->
+                                    val subtaskIsChecked = remember { mutableStateOf(false) }
+                                    val textDecoration = if (subtaskIsChecked.value) {
+                                        TextDecoration.LineThrough
+                                    } else if (isChecked.value) {
+                                        TextDecoration.LineThrough
+                                    } else {
+                                        null
+                                    }
+                                    //Row
+                                    Row(
+                                        modifier = Modifier
+                                            .padding(5.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (isChecked.value) {
+                                            Checkbox(
+                                                checked = isChecked.value,
+                                                onCheckedChange = {})
+                                        } else {
+                                            Checkbox(
+                                                checked = subtaskIsChecked.value,
+                                                onCheckedChange = {
+                                                    subtaskIsChecked.value = it
+                                                })
                                         }
-                                        else{
-                                            Checkbox(checked = subtaskIsChecked.value, onCheckedChange = {
-                                                subtaskIsChecked.value = it
-                                            })
-                                        }
-
-
                                         Text(
                                             modifier = Modifier.fillMaxWidth(0.9f),
                                             text = buildAnnotatedString {
@@ -386,11 +389,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                             },
                                         )
                                     }
-                                    else{
-                                        Text(text = "No subtasks")
-                                    }
                                 }
-                            }
                         }
 
                         //Divider
