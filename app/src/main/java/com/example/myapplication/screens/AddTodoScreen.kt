@@ -113,7 +113,6 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     val snackScope = rememberCoroutineScope()
     val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember{ SnackbarHostState() }
-    val configuration = LocalConfiguration.current
     var dateStoreInDatabase by remember { mutableStateOf("null") }
     var timeStoreInDatabase by remember { mutableStateOf("null") }
     var isFinished by remember { mutableStateOf(false) }
@@ -165,7 +164,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     onDismissRequest = { dropDownExpanded = false }
                 ) {templateTodos.forEach { templates ->
                     DropdownMenuItem(
-                        text = { templates.taskName },
+                        text = { Text(templates.taskName) },
                         onClick = {
                             selectedText = templates
                             dropDownExpanded = false
@@ -212,6 +211,10 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                 selectedText.subTaskDetails.forEach { subtask ->
                     var isSubtaskExpanded by remember { mutableStateOf(false) }
                     var subtaskTitle by remember { mutableStateOf(subtask.subtaskTitle) }
+                    var isSubtaskDateExpanded by remember { mutableStateOf(false) }
+                    var isSubtaskTimeExpanded by remember { mutableStateOf(false) }
+                    var subtaskScheduledDate by remember { mutableStateOf("null") }
+                    var subtaskScheduledTime by remember { mutableStateOf("null") }
                     LaunchedEffect(subtask){
                         subtaskTitle = subtask.subtaskTitle
                     }
@@ -237,26 +240,124 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    OutlinedTextField(
-                                        value = subtaskTitle,
-                                        onValueChange = { subtaskTitle = it },
-                                        label = { Text("Subtask Title") },
-                                        keyboardOptions = KeyboardOptions.Default.copy(
-                                            imeAction = ImeAction.Next
-                                        ),
-                                        modifier = Modifier
-                                            .padding(bottom = 8.dp)
-                                    )
-                                    IconButton(onClick = {
-                                        isSubtaskExpanded = false
-                                        subtask.subtaskTitle = subtaskTitle
-                                        subTitle = subtask.subtaskTitle
-                                    })
-                                    {
-                                        Icon(
-                                            imageVector = Icons.Filled.Check,
-                                            contentDescription = "Add"
-                                        )
+                                    Column {
+                                        Row {
+                                            OutlinedTextField(
+                                                value = subtaskTitle,
+                                                onValueChange = { subtaskTitle = it },
+                                                label = { Text("Subtask Title") },
+                                                keyboardOptions = KeyboardOptions.Default.copy(
+                                                    imeAction = ImeAction.Next
+                                                ),
+                                                modifier = Modifier
+                                                    .padding(bottom = 8.dp)
+                                            )
+                                            IconButton(onClick = {
+                                                isSubtaskExpanded = false
+                                                subtask.subtaskTitle = subtaskTitle
+                                                subTitle = subtask.subtaskTitle
+                                                subtask.subtaskScheduledDate = subtaskScheduledDate
+                                                subtask.subtaskScheduledTime = subtaskScheduledTime
+                                            })
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Check,
+                                                    contentDescription = "Add"
+                                                )
+                                            }
+                                        }
+                                        Row {
+                                            //Need to figure out if the date and time picker can be done using a function to reduce the code redundancy
+                                            //Date Picker
+                                            IconButton(onClick = {
+                                                isSubtaskDateExpanded = !isSubtaskDateExpanded
+                                            }) {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .size(10.dp),
+                                                    verticalArrangement = Arrangement.Center,
+                                                    horizontalAlignment = Alignment.CenterHorizontally
+                                                ) {
+                                                    Icon(
+                                                        Icons.Filled.DateRange, "Date Picker"
+                                                    )
+                                                    Text(text = "Date", fontSize = 8.sp)
+                                                }
+                                            }
+
+                                            //Time Picker
+                                            IconButton(onClick = {
+                                                isSubtaskTimeExpanded = !isSubtaskTimeExpanded
+                                            }) {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .size(10.dp),
+                                                    verticalArrangement = Arrangement.Center,
+                                                    horizontalAlignment = Alignment.CenterHorizontally
+                                                ) {
+                                                    Icon(
+                                                        Icons.Outlined.Info, "Time Picker"
+                                                    )
+                                                    Text(text = "Time", fontSize = 8.sp)
+                                                }
+                                            }
+                                        }
+
+
+                                        ///
+                                        if (isSubtaskDateExpanded) {
+                                            DatePickerDialog(
+                                                onDismissRequest = { isSubtaskDateExpanded = false },
+                                                confirmButton = {
+                                                    TextButton(onClick = {
+                                                        val selectedDateMillis = datePickerState.selectedDateMillis
+                                                        if(selectedDateMillis!=null){
+                                                            subtaskScheduledDate = handleSelectedDate(selectedDateMillis)
+                                                        }
+                                                        isSubtaskDateExpanded = false
+                                                        snackScope.launch{
+                                                            snackState.showSnackbar(
+                                                                "Selected Date: ${datePickerState.selectedDateMillis}"
+                                                            )
+                                                        }
+                                                    }
+                                                    ) {
+                                                        Text(text = "Ok")
+                                                    }
+                                                },
+                                                dismissButton = {
+                                                    TextButton(
+                                                        onClick = { isSubtaskDateExpanded = false }
+                                                    ) {
+                                                        Text(text = "Cancel")
+                                                    }
+                                                }
+                                            ) {
+                                                DatePicker(
+                                                    state = datePickerState,
+                                                    modifier = Modifier.padding(8.dp)
+                                                )
+                                            }
+                                        }
+                                        if (isSubtaskTimeExpanded) {
+                                            TimePickerDialog(
+                                                onCancel = { isSubtaskTimeExpanded = false },
+                                                onConfirm = {
+                                                    val cal = Calendar.getInstance()
+                                                    cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                                                    cal.set(Calendar.MINUTE, timePickerState.minute)
+                                                    cal.isLenient = false
+                                                    subtaskScheduledTime = timeFormatter.format(cal.time)
+                                                    snackScope.launch {
+                                                        snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
+                                                    }
+                                                    isSubtaskTimeExpanded = false
+                                                }) {
+                                                TimePicker(state = timePickerState)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -306,12 +407,11 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 SubtaskTodo(
                                     id = insertedTodoId,
                                     subtaskTitle = subtask.subtaskTitle,
-                                    subtaskScheduledDate = dateStoreInDatabase,
-                                    subtaskScheduledTime = timeStoreInDatabase,
+                                    subtaskScheduledDate = subtask.subtaskScheduledDate,
+                                    subtaskScheduledTime = subtask.subtaskScheduledTime,
                                     isSubtaskCompleted = isFinished
                                 )
                             )
-                            Log.i("ids", "Subtask: ${insertedTodoId}")
                         }
                     }
                 }
