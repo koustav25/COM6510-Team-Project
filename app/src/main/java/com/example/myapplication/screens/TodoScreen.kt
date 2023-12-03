@@ -2,6 +2,7 @@ package com.example.myapplication.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
@@ -26,7 +30,11 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,10 +44,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -176,27 +187,33 @@ fun DeleteIcon(){
 }
 
 
+
+
 @Composable
-fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit){
+fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
     val subtaskTodoState by subtaskTodo.collectAsState(initial = emptyList())
 
     Column {
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
-            val isChecked = remember{ mutableStateOf(false) }
+            val isChecked = remember { mutableStateOf(false) }
             val coroutineScope = rememberCoroutineScope()
-            val textDecoration = if(isChecked.value) TextDecoration.LineThrough else null
+            val textDecoration = if (isChecked.value) TextDecoration.LineThrough else null
             var isFavClicked by remember { mutableStateOf(todoItem.isFavorite) }
             var isImportantClicked by remember { mutableStateOf(todoItem.isImportant) }
-            val favIcon = if (isFavClicked){
+            var editingTitle by remember { mutableStateOf(todoItem.title) }
+            var subtask by remember { mutableStateOf(false) }
+            var editingDescription by remember { mutableStateOf(todoItem.description) }
+            var isEditing  by remember { mutableStateOf(false) }
+            val favIcon = if (isFavClicked) {
                 Icons.Filled.Favorite
-            }else{
+            } else {
                 Icons.Outlined.FavoriteBorder
             }
-            val impIcon = if (isImportantClicked){
+            val impIcon = if (isImportantClicked) {
                 Icons.Filled.Info
-            }else{
+            } else {
                 Icons.Outlined.Info
             }
             Card(
@@ -211,7 +228,28 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                     modifier = Modifier.padding(bottom = 10.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                ) {if(isEditing) {
+                    Row(
+                        modifier = Modifier.padding(1.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Checked",
+                            modifier = Modifier.clickable {
+                                viewModel.updateTodo(
+                                    todoItem.copy(
+                                        title = editingTitle,
+                                        description = editingDescription,
+                                    )
+                                )
+                                subtask = true
+                                isEditing = false
+                            }
+                        )
+                    }
+                }
                     Row(
                         modifier = Modifier.padding(5.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -220,13 +258,27 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         Checkbox(checked = isChecked.value, onCheckedChange = {
                             isChecked.value = it
                         })
-                        if(isChecked.value){
+                        if (isChecked.value) {
                             toBeDeletedRows.add(todoItem.id)
-                        }else{
-                            if(toBeDeletedRows.contains(todoItem.id))
+                        } else {
+                            if (toBeDeletedRows.contains(todoItem.id))
                                 toBeDeletedRows.remove(todoItem.id)
                         }
+                        if(isEditing){
+                            OutlinedTextField(
+                                value = editingTitle,
+                                onValueChange = {
+                                    editingTitle = it
+                                },
+                                label = { Text("Title") },
+                                keyboardOptions = KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Done
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth(0.9f)
+                            )
 
+                        }else{
                         Text(
                             modifier = Modifier.fillMaxWidth(0.9f),
                             text = buildAnnotatedString {
@@ -236,7 +288,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             },
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
-                        )
+                        )}
+
+
                         if (isFavClicked) {
                             var isFavClicked by remember { mutableStateOf(todoItem.isFavorite) }
                             val favIcon = if (isFavClicked) {
@@ -254,7 +308,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                     }
                                 }
                             )
-                        }else {
+                        } else {
                             Icon(
                                 imageVector = favIcon,
                                 contentDescription = "Not Favorite",
@@ -277,12 +331,24 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             verticalArrangement = Arrangement.SpaceBetween,
                             horizontalAlignment = Alignment.Start
                         ) {
+                            if(isEditing){
+                                OutlinedTextField(
+                                    value = editingDescription,
+                                    onValueChange = { editingDescription = it },
+                                    label = { Text("Description") },
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Done
+                                    ),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+                            }else{
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(textDecoration = textDecoration)) {
                                         append(todoItem.description)
                                     }
-                                })
+                                })}
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
@@ -293,9 +359,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         }
                         if (isImportantClicked) {
                             var isImportantClicked by remember { mutableStateOf(todoItem.isImportant) }
-                            val impIcon = if (isImportantClicked){
+                            val impIcon = if (isImportantClicked) {
                                 Icons.Filled.Info
-                            }else{
+                            } else {
                                 Icons.Outlined.Info
                             }
                             Icon(
@@ -320,29 +386,28 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                     }
 
                     //Expand todo
-                    if(isExpanded){
-                        Divider(modifier = Modifier.padding(vertical = 5.dp),
+                    if (isExpanded) {
+                        Divider(
+                            modifier = Modifier.padding(vertical = 5.dp),
                             thickness = 1.dp,
                         )
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
-                                    if(todoItem.scheduledDate == "null"){
+                                    if (todoItem.scheduledDate == "null") {
                                         append("Scheduled Date: Not scheduled")
-                                    }
-                                    else{
-                                        append("Scheduled Date: "+todoItem.scheduledDate)
+                                    } else {
+                                        append("Scheduled Date: " + todoItem.scheduledDate)
                                     }
                                 }
                             })
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
-                                    if(todoItem.scheduledTime == "null"){
+                                    if (todoItem.scheduledTime == "null") {
                                         append("Scheduled Time: Not scheduled")
-                                    }
-                                    else{
-                                        append("Scheduled Time: "+todoItem.scheduledTime)
+                                    } else {
+                                        append("Scheduled Time: " + todoItem.scheduledTime)
                                     }
 
                                 }
@@ -352,8 +417,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         if (subtaskTodoState.isEmpty()) {
                             Text(text = "No subtasks")
                         } else {
-                            subtaskTodoState.filter{it.id == todoItem.id}
-                                .forEach{ subtaskItem ->
+                            subtaskTodoState.filter { it.id == todoItem.id }
+                                .forEach { subtaskItem ->
+                                    var subtaskEditing by remember { mutableStateOf(subtaskItem.subtaskTitle) }
                                     val subtaskIsChecked = remember { mutableStateOf(false) }
                                     val textDecoration = if (subtaskIsChecked.value) {
                                         TextDecoration.LineThrough
@@ -380,6 +446,18 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                     subtaskIsChecked.value = it
                                                 })
                                         }
+                                        if(isEditing){
+                                            OutlinedTextField(
+                                                value = subtaskEditing,
+                                                onValueChange = { subtaskEditing = it },
+                                                label = { Text("Title") },
+                                                keyboardOptions = KeyboardOptions.Default.copy(
+                                                    imeAction = ImeAction.Done
+                                                ),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                            )
+                                        }else{
                                         Text(
                                             modifier = Modifier.fillMaxWidth(0.9f),
                                             text = buildAnnotatedString {
@@ -387,13 +465,23 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                     append(subtaskItem.subtaskTitle)
                                                 }
                                             },
+                                        )}
+                                    }
+
+                                    if(subtask){
+                                        val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
+                                        subtaskTodoViewModel.updateSubtaskTodo(
+                                        subtaskItem.copy(
+                                            subtaskTitle = subtaskEditing,
+                                         )
                                         )
                                     }
                                 }
                         }
 
                         //Divider
-                        Divider(modifier = Modifier.padding(vertical = 5.dp),
+                        Divider(
+                            modifier = Modifier.padding(vertical = 5.dp),
                             thickness = 1.dp,
                         )
                         Row(
@@ -428,15 +516,23 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             }
 
                             //Edit Todo Button
-                            IconButton(onClick = { }) {
-                                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Todo")
+                            IconButton(onClick = {
+                                isEditing = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = "Edit Todo"
+                                )
                             }
-                        }
-                    }
 
+                        }
+
+                    }
                 }
             }
         }
-    }
 
+    }
 }
+
+

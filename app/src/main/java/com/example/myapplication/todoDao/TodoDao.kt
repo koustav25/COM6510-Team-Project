@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.myapplication.todoEntities.Todo
 import kotlinx.coroutines.flow.Flow
 
@@ -12,6 +13,8 @@ interface TodoDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(todo: Todo): Long
+    @Update
+    suspend fun update(todo:Todo)
 
     @Query("SELECT * FROM "+ Todo.TABLE_NAME+ " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>

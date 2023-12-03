@@ -5,11 +5,11 @@ import androidx.room.PrimaryKey
 
 // Todo.kt
 @Entity(Todo.TABLE_NAME)
-data class Todo(
+data class  Todo(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val title: String,
-    val description: String,
+    var title: String,
+    var description: String,
     val date: String,
     val isFavorite: Boolean,
     val isImportant: Boolean,

@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.SubtaskTodo
+import com.example.myapplication.todoEntities.Todo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -31,6 +32,12 @@ class SubtaskTodoViewModel(app: Application) : AndroidViewModel(app) {
     fun getSubtasksById(todoId: Long){
         viewModelScope.launch(Dispatchers.IO){
             subtaskDao.getSubtasksById(todoId)
+        }
+    }
+
+    fun updateSubtaskTodo(subTaskTodo: SubtaskTodo){
+        viewModelScope.launch(Dispatchers.IO){
+            subtaskDao.update(subTaskTodo)
         }
     }
 

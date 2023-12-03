@@ -15,7 +15,7 @@ data class SubtaskTodo(
     val id: Long,
     @PrimaryKey(autoGenerate = true)
     val subtaskID: Long = 0,
-    val subtaskTitle: String,
+    var subtaskTitle: String,
     val subtaskScheduledDate: String,
     val subtaskScheduledTime: String,
     val isSubtaskCompleted: Boolean

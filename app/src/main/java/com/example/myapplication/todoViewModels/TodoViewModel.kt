@@ -34,6 +34,12 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
         return deferred.await()
     }
 
+    fun updateTodo(todo:Todo){
+        viewModelScope.launch(Dispatchers.IO){
+            dao.update(todo)
+        }
+    }
+
     fun isEmpty(): Boolean = runBlocking{
         val todosList = allTodos.firstOrNull()
         todosList.isNullOrEmpty()
