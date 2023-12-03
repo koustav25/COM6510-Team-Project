@@ -15,19 +15,22 @@ import com.example.myapplication.todoViewModels.TodoViewModel
 fun Finished(onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
     val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
-    LazyColumn(
-        modifier = Modifier
-            .padding(5.dp)
-            .fillMaxSize())
-    {
-        item {
-            if (todoViewModel.isFinishedEmpty()) {
-                Text(text = "No Finished todos")
-            } else {
-                Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
-                        todoId -> onNavigate(todoId)
-                }
-            }
-        }
-    }
+
+    //Need to fix the code. Please add isFinishedEmpty() in the TodoViewModel along with finishedTodos val to fetch all the todos which have been marked as finished.
+
+//    LazyColumn(
+//        modifier = Modifier
+//            .padding(5.dp)
+//            .fillMaxSize())
+//    {
+//        item {
+//            if (todoViewModel.isFinishedEmpty()) {
+//                Text(text = "No Finished todos")
+//            } else {
+//                Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+//                        todoId -> onNavigate(todoId)
+//                }
+//            }
+//        }
+//    }
 }
