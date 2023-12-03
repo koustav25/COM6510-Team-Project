@@ -165,7 +165,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     onDismissRequest = { dropDownExpanded = false }
                 ) {templateTodos.forEach { templates ->
                     DropdownMenuItem(
-                        text = { templates.taskName },
+                        text = { Text(templates.taskName) },
                         onClick = {
                             selectedText = templates
                             dropDownExpanded = false
