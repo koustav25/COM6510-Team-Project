@@ -32,9 +32,9 @@ fun TemplateTodosData() : List<TemplateTodos>{
             TemplateSubtaskTodosDataNull()
         ),
         TemplateTodos(
-            "Task 1",
-            "Template Todo1",
-            "This is template Todo description",
+            "Build a PC",
+            "Need to build a custom PC",
+            "I need to buy certain parts to custom build a PC",
             LocalDate.now().toString(),
             false,
             false,
@@ -45,9 +45,9 @@ fun TemplateTodosData() : List<TemplateTodos>{
             TemplateSubtaskTodosData1()
         ),
         TemplateTodos(
-            "Task 2",
-            "Template Todo2",
-            "This is template Todo2 description",
+            "Buy Groceries",
+            "Buy groceries from Tesco",
+            "List of grocery items to buy from Tesco",
             LocalDate.now().toString(),
             false,
             false,
@@ -58,9 +58,9 @@ fun TemplateTodosData() : List<TemplateTodos>{
             TemplateSubtaskTodosData2()
         ),
         TemplateTodos(
-            "Task 3",
-            "Template Todo3",
-            "This is template Todo3 description",
+            "Dinner for 3",
+            "Make dinner for 3 people",
+            "Things to remember while making dinner for 3 people",
             LocalDate.now().toString(),
             false,
             false,
@@ -71,9 +71,9 @@ fun TemplateTodosData() : List<TemplateTodos>{
             TemplateSubtaskTodosData3()
         ),
         TemplateTodos(
-            "Task 4",
-            "Template Todo4",
-            "This is template Todo4 description",
+            "Visit London",
+            "Visit London",
+            "Things to do while visiting London",
             LocalDate.now().toString(),
             false,
             false,
@@ -105,58 +105,64 @@ fun TemplateSubtaskTodosDataNull() : List<TemplateSubtaskTodos>{
     )
 }
 
+
 fun TemplateSubtaskTodosData1() : List<TemplateSubtaskTodos>{
     return listOf(
         TemplateSubtaskTodos(
-            "Subtask 1 of task 1",
+            "Buy a motherboard",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 2 of task 1",
+            "Buy Intel Core-I5 12400F",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 3 of task 1",
+            "Buy Nvidia RTX 4090 Ti",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 4 of task 1",
+            "Buy 64GB DDR5 RAM",
+            "null",
+            "null",
+            false
+        ),
+        TemplateSubtaskTodos(
+            "Buy 600W PSU",
             "null",
             "null",
             false
         )
     )
 }
-
 //2
 fun TemplateSubtaskTodosData2() : List<TemplateSubtaskTodos>{
     return listOf(
         TemplateSubtaskTodos(
-            "Subtask 1 of task 2",
+            "Onions 3Kg",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 2 of task 2",
+            "Carrots 1Kg",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 3 of task 2",
+            "Tomatoes 2Kg",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 4 of task 2",
+            "Baby Mushrooms 200gm",
             "null",
             "null",
             false
@@ -168,25 +174,25 @@ fun TemplateSubtaskTodosData2() : List<TemplateSubtaskTodos>{
 fun TemplateSubtaskTodosData3() : List<TemplateSubtaskTodos>{
     return listOf(
         TemplateSubtaskTodos(
-            "Subtask 1 of task 3",
+            "Make Butter chicken",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 2 of task 3",
+            "Make 20 Nan rotis",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 3 of task 3",
+            "Check for guest specific allergies",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 4 of task 4",
+            "Serve hot",
             "null",
             "null",
             false
@@ -198,25 +204,25 @@ fun TemplateSubtaskTodosData3() : List<TemplateSubtaskTodos>{
 fun TemplateSubtaskTodosData4() : List<TemplateSubtaskTodos>{
     return listOf(
         TemplateSubtaskTodos(
-            "Subtask 1 of task 4",
+            "Visit the British Museum",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 2 of task 4",
+            "Bask in the glory of the London eye at Night",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 3 of task 4",
+            "Click a selfie on the Tower bridge",
             "null",
             "null",
             false
         ),
         TemplateSubtaskTodos(
-            "Subtask 4 of task 4",
+            "Relax in Hyde park",
             "null",
             "null",
             false
