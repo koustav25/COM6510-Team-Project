@@ -118,8 +118,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
 
-    val isSubtaskChecked = remember { mutableStateOf(false) }
-    val textDecoration = if (isSubtaskChecked.value) TextDecoration.LineThrough else null
+
 
     var isFavClicked by remember { mutableStateOf(false) }
     var isImportantClicked by remember{ mutableStateOf(false) }
@@ -215,6 +214,10 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     var isSubtaskTimeExpanded by remember { mutableStateOf(false) }
                     var subtaskScheduledDate by remember { mutableStateOf("null") }
                     var subtaskScheduledTime by remember { mutableStateOf("null") }
+
+                    val isSubtaskChecked = remember { mutableStateOf(false) }
+                    val textDecoration = if (isSubtaskChecked.value) TextDecoration.LineThrough else null
+
                     LaunchedEffect(subtask){
                         subtaskTitle = subtask.subtaskTitle
                     }
@@ -366,6 +369,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                     checked = isSubtaskChecked.value,
                                     onCheckedChange = {
                                         isSubtaskChecked.value = it
+                                        subtask.isSubtaskCompleted = isSubtaskChecked.value
                                     }
                                 )
 
@@ -409,7 +413,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                     subtaskTitle = subtask.subtaskTitle,
                                     subtaskScheduledDate = subtask.subtaskScheduledDate,
                                     subtaskScheduledTime = subtask.subtaskScheduledTime,
-                                    isSubtaskCompleted = isFinished
+                                    isSubtaskCompleted = subtask.isSubtaskCompleted
                                 )
                             )
                         }
