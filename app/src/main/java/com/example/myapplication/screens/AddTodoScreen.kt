@@ -1,5 +1,4 @@
 package com.example.myapplication.screens
-
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -83,6 +82,8 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
+//import com.example.myapplication.ui.theme.Priority
+//import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -100,6 +101,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var description by remember { mutableStateOf("") }
     var isFav by remember{ mutableStateOf(false) }
     var isImp by remember{ mutableStateOf(false) }
+//    var priorityVal by remember{ mutableStateOf(Priority.STANDARD) }
 
     var subTitle by remember { mutableStateOf("") }
 
@@ -135,6 +137,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
 
     var dropDownExpanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(templateTodos[0]) }
+
+//    var dropDownPriorityExpanded by remember { mutableStateOf(false) }
+//    var selectedPriority by remember{ mutableStateOf(PriorityTodosData()[0]) }
 
     LazyColumn(
         modifier = Modifier
@@ -172,6 +177,41 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                 }
                 }
             }
+
+            //Priority
+//            Text(
+//                text="Select a priority"
+//           )
+//            ExposedDropdownMenuBox(
+//                expanded = dropDownPriorityExpanded,
+//                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
+//                modifier = Modifier.padding(2.dp)
+//            ){
+//                TextField(value = selectedPriority.priorityName,
+//                    onValueChange = { },
+//                    readOnly = true,
+//                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
+//                    modifier = Modifier.menuAnchor()
+//                )
+//                ExposedDropdownMenu(
+//                    expanded = dropDownPriorityExpanded,
+//                    onDismissRequest = { dropDownPriorityExpanded = false }
+//                ) {
+//                    PriorityTodosData().forEach { item ->
+//                    DropdownMenuItem(
+//                        text = { Text(item.priorityName) },
+//                        onClick = {
+//                            selectedPriority = item
+//                            dropDownPriorityExpanded = false
+//                        }
+//                    )
+//                }
+//                }
+//            }
+
+//            LaunchedEffect(selectedPriority ){
+//                priorityVal = selectedPriority.priority
+//            }
 
             LaunchedEffect(selectedText){
                 title = selectedText.todoTitle
@@ -402,7 +442,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledDate = dateStoreInDatabase,
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
-                                isDeleted = isDeleted
+                                isDeleted = isDeleted,
+//                                priority = priorityVal
                             )
                         )
                         Log.i("ids", "Todo inserted successfull: ${insertedTodoId}")
@@ -599,7 +640,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledDate = dateStoreInDatabase,
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
-                                isDeleted = isDeleted
+                                isDeleted = isDeleted,
+//                                priority = priorityVal
                             )
                         )
                     }

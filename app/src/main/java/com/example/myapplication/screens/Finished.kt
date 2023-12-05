@@ -1,5 +1,7 @@
 package com.example.myapplication.screens
 
+import android.os.Debug
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,19 +20,21 @@ fun Finished(onNavigate: (Long) -> Unit){
 
     //Need to fix the code. Please add isFinishedEmpty() in the TodoViewModel along with finishedTodos val to fetch all the todos which have been marked as finished.
 
-//    LazyColumn(
-//        modifier = Modifier
-//            .padding(5.dp)
-//            .fillMaxSize())
-//    {
-//        item {
-//            if (todoViewModel.isFinishedEmpty()) {
-//                Text(text = "No Finished todos")
-//            } else {
-//                Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
-//                        todoId -> onNavigate(todoId)
-//                }
-//            }
-//        }
-//    }
+    LazyColumn(
+        modifier = Modifier
+            .padding(5.dp)
+            .fillMaxSize())
+    {
+        item {
+            Log.d("Mine","Will check if isFinished is Empty")
+            if (todoViewModel.isFinishedEmpty()) {
+                Log.d("Mine", "Checking if isFinished is Empty")
+                Text(text = "No Finished todos ok")
+            } else {
+                Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                        todoId -> onNavigate(todoId)
+                }
+            }
+        }
+    }
 }

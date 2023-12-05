@@ -122,7 +122,13 @@ LazyColumn(
                      Log.i("cat", "Important")
                  }
                  if(selectedCategory?.todoCategories == "Finished"){
-                     Text(text = "No Todos here in Finished")
+                     if(todoViewModel.isFinishedEmpty()){
+                         Text(text = "No Finished Todos here")
+                     }
+                     Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, viewModel = todoViewModel){
+                             todoId -> onNavigate(todoId)
+                     }
+
                      Log.i("cat", "Finished")
                  }
                  if(selectedCategory?.todoCategories == "Bin"){
@@ -179,9 +185,6 @@ fun DeleteIcon(){
     }
 }
 
-
-
-
 @Composable
 fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
@@ -190,7 +193,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
     Column {
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
-            val isChecked = remember { mutableStateOf(false) }
+//            val isChecked = remember { mutableStateOf(false) }
+            val isChecked = remember { mutableStateOf(todoItem.isFinished) }
             val coroutineScope = rememberCoroutineScope()
             val textDecoration = if (isChecked.value) TextDecoration.LineThrough else null
             var isFavClicked by remember { mutableStateOf(todoItem.isFavorite) }
@@ -229,13 +233,26 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                     ) {
                         Checkbox(checked = isChecked.value, onCheckedChange = {
                             isChecked.value = it
+
                         })
+
                         if (isChecked.value) {
                             toBeDeletedRows.add(todoItem.id)
+                            Log.d("AA", " "+isChecked.value)
+//                            coroutineScope.launch {
+//                                viewModel.setFinished(todoItem.id, isChecked.value)
+//                            }
                         } else {
+//                            Log.d("TAG", " "+todoItem.id + " ")
                             if (toBeDeletedRows.contains(todoItem.id))
                                 toBeDeletedRows.remove(todoItem.id)
+
                         }
+                        if(todoItem.isFinished != isChecked.value) {
+//                            Log.d("Debug", " Entered the if loop "+isChecked.value)
+                            viewModel.setFinished(todoItem.id, isChecked.value)
+                        }
+
                         if(isEditing){
                             OutlinedTextField(
                                 value = editingTitle,

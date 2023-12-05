@@ -45,4 +45,10 @@ interface TodoDao {
 
     @Query("Update "+Todo.TABLE_NAME+ " set isImportant = :isImportant where id = :id")
     suspend fun setImportant(id:Long, isImportant: Boolean)
+
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFinished = true")
+    fun getFinishedTodos(): Flow<List<Todo>>
+
+    @Query("Update "+Todo.TABLE_NAME+ " set isFinished = :isFinished where id = :id")
+    suspend fun setFinished(id:Long, isFinished: Boolean)
 }

@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import com.example.myapplication.screens.AddSubtaskTodo
 import com.example.myapplication.screens.AddTodo
 import com.example.myapplication.screens.CategoryScreen
+import com.example.myapplication.screens.Finished
 import com.example.myapplication.screens.TodoDetail
 import com.example.myapplication.ui.theme.MyApplicationTheme
 

@@ -24,6 +24,7 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val scheduledTodos: Flow<List<Todo>> = dao.getScheduledTodos(LocalDate.now().toString())
     val favoriteTodos: Flow<List<Todo>> = dao.getFavoriteTodos()
     val todosInBin: Flow<List<Todo>> = dao.getDeletedTodos()
+    val finishedTodos: Flow<List<Todo>> = dao.getFinishedTodos()
 
     suspend fun addTodo(todo: Todo): Long {
         val deferred = CompletableDeferred<Long>()
@@ -82,4 +83,19 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     suspend fun deleteSelectedTodos(id:Long) {
         dao.delete(id)
     }
+
+    fun setFinished(todoItemId:Long, isFinished:Boolean ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                dao.setFinished(todoItemId, isFinished)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    fun isFinishedEmpty(): Boolean = runBlocking {
+        val todosList = finishedTodos.firstOrNull()
+        todosList.isNullOrEmpty()
+    }
+
 }
