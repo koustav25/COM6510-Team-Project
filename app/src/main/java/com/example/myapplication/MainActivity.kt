@@ -48,7 +48,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     App()
-                    Notification.SetNotification("2023-12-6 16:30",application)
                 }
             }
         }
