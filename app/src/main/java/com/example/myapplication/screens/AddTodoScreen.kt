@@ -29,6 +29,7 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -77,6 +78,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TemplateTodos
+import com.example.myapplication.function.Camera
+import com.example.myapplication.function.Gallery
+import com.example.myapplication.function.Location
+import com.example.myapplication.function.Web
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
@@ -731,7 +736,29 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         }
                     }
                 }
-
+                Row{
+                    //Open web
+                    IconButton(onClick = { Web.OpenWeb(context) }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .size(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Outlined.Search, "Web"
+                            )
+                            Text(text = "Web", fontSize = 8.sp)
+                        }
+                    }
+                    //location
+                    Location.GetLocation(context)
+                    //open Gallery
+                    Gallery.OpenGallery(context)
+                    //open Camera
+                    Camera.RunCamera(context)
+                }
                 //Handling Date dialog
                 if (showDialogForDate) {
                     DatePickerDialog(
