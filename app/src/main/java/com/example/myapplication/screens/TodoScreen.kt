@@ -221,28 +221,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                     modifier = Modifier.padding(bottom = 10.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
-                ) {if(isEditing) {
-                    Row(
-                        modifier = Modifier.padding(1.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = "Checked",
-                            modifier = Modifier.clickable {
-                                viewModel.updateTodo(
-                                    todoItem.copy(
-                                        title = editingTitle,
-                                        description = editingDescription,
-                                    )
-                                )
-                                subtask = true
-                                isEditing = false
-                            }
-                        )
-                    }
-                }
+                ) {
                     Row(
                         modifier = Modifier.padding(5.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -507,15 +486,31 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                 )
                                 Text(text = "Add Subtask")
                             }
-
-                            //Edit Todo Button
-                            IconButton(onClick = {
-                                isEditing = true
-                            }) {
+                            if(isEditing){
                                 Icon(
-                                    imageVector = Icons.Filled.Edit,
-                                    contentDescription = "Edit Todo"
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = "Checked",
+                                    modifier = Modifier.clickable {
+                                        viewModel.updateTodo(
+                                            todoItem.copy(
+                                                title = editingTitle,
+                                                description = editingDescription,
+                                            )
+                                        )
+                                        subtask = true
+                                        isEditing = false
+                                    }
                                 )
+                            }else {
+                                //Edit Todo Button
+                                IconButton(onClick = {
+                                    isEditing = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Edit,
+                                        contentDescription = "Edit Todo"
+                                    )
+                                }
                             }
 
                         }
