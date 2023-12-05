@@ -1,6 +1,7 @@
 package com.example.myapplication.todoDao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -23,4 +24,7 @@ interface SubtaskTodoDao {
 
     @Update
     suspend fun update(subtaskTodo: SubtaskTodo)
+
+    @Delete
+    suspend fun delete(subtaskTodo: SubtaskTodo)
 }

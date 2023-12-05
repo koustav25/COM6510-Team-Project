@@ -35,6 +35,15 @@ class SubtaskTodoViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun deleteSubtaskTodo(subTaskListTodo: List<SubtaskTodo>){
+        viewModelScope.launch(Dispatchers.IO){
+            subTaskListTodo.forEach{
+                subtaskDao.delete(it)
+            }
+
+        }
+    }
+
     fun updateSubtaskTodo(subTaskTodo: SubtaskTodo){
         viewModelScope.launch(Dispatchers.IO){
             subtaskDao.update(subTaskTodo)

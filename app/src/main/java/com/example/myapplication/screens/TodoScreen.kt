@@ -384,11 +384,14 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
 
                                 }
                             })
-
+                        val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
+                        var subtasksToBeDeleted by remember {mutableStateOf < List<SubtaskTodo>>(emptyList())}
                         //Subtasks
                         if (subtaskTodoState.isEmpty()) {
                             Text(text = "No subtasks")
                         } else {
+
+
                             subtaskTodoState.filter { it.id == todoItem.id }
                                 .forEach { subtaskItem ->
                                     var subtaskEditing by remember { mutableStateOf(subtaskItem.subtaskTitle) }
@@ -411,6 +414,11 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                             Checkbox(
                                                 checked = isSubtaskChecked,
                                                 onCheckedChange = { isSubtaskChecked = !isSubtaskChecked })
+                                                if(isSubtaskChecked){
+                                                    subtasksToBeDeleted = subtasksToBeDeleted + subtaskItem
+                                                }else{
+                                                    subtasksToBeDeleted = subtasksToBeDeleted - subtaskItem
+                                                }
                                         } else {
                                             Checkbox(
                                                 checked = isSubtaskChecked,
@@ -441,7 +449,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                     }
 
                                     if(subtask){
-                                        val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
+
                                         subtaskTodoViewModel.updateSubtaskTodo(
                                         subtaskItem.copy(
                                             subtaskTitle = subtaskEditing,
@@ -464,7 +472,10 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         ) {
 
                             //Delete Todo Button
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = {
+                                subtaskTodoViewModel.deleteSubtaskTodo(subtasksToBeDeleted)
+
+                            }) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
                                     contentDescription = "Edit Todo"
