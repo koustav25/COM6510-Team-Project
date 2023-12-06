@@ -80,7 +80,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TemplateTodos
 import com.example.myapplication.function.Camera
 import com.example.myapplication.function.Gallery
-import com.example.myapplication.function.Location
+//import com.example.myapplication.function.Location
 import com.example.myapplication.function.Web
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.SubtaskTodo
@@ -124,7 +124,37 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var timeStoreInDatabase by remember { mutableStateOf("null") }
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
+//    var scheduledDate by remember { mutableStateOf<LocalDate?>(null) }
+//    var scheduledTime by remember { mutableStateOf<LocalTime?>(null) }
 
+//    Button(onClick = { showDialogForDate = true }) {
+//        Text("Select Date")
+//    }
+//
+//    // Trigger to open TimePicker
+//    Button(onClick = { showDialogForTime = true }) {
+//        Text("Select Time")
+//    }
+//
+//    // Custom DatePicker
+//    CustomDatePicker(
+//        showDialog = showDialogForDate,
+//        onDateSelected = { date ->
+//            scheduledDate = date
+//            showDialogForDate = false
+//        },
+//        onDismissRequest = { showDialogForDate = false }
+//    )
+//
+//    // Custom TimePicker
+//    CustomTimePicker(
+//        showDialog = showDialogForTime,
+//        onTimeSelected = { time ->
+//            scheduledTime = time
+//            showDialogForTime = false
+//        },
+//        onDismissRequest = { showDialogForTime = false }
+//    )
 
 
     var isFavClicked by remember { mutableStateOf(false) }
@@ -753,7 +783,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         }
                     }
                     //location
-                    Location.GetLocation(context)
+//                    Location.GetLocation(context)
                     //open Gallery
                     Gallery.OpenGallery(context)
                     //open Camera
