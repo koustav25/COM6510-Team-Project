@@ -45,6 +45,8 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Calendar
 import java.util.Locale
 
@@ -69,6 +71,36 @@ fun AddSubtaskTodo(todoId: Long, onNavigate: () -> Unit) {
     var timeStoreInDatabase by remember { mutableStateOf("null") }
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
+
+    var scheduledDate by remember { mutableStateOf<LocalDate?>(null) }
+    var scheduledTime by remember { mutableStateOf<LocalTime?>(null) }
+
+//    if (showDialogForDate) {
+//        DatePickerDialog(
+//            context,
+//            { _, year, month, dayOfMonth ->
+//                scheduledDate = LocalDate.of(year, month + 1, dayOfMonth)
+//                showDialogForDate = false
+//            },
+//            scheduledDate?.year ?: LocalDate.now().year,
+//            scheduledDate?.monthValue?.minus(1) ?: LocalDate.now().monthValue - 1,
+//            scheduledDate?.dayOfMonth ?: LocalDate.now().dayOfMonth
+//        ).show()
+//    }
+//
+//    if (showDialogForTime) {
+//        TimePickerDialog(
+//            context,
+//            { _, hour, minute ->
+//                scheduledTime = LocalTime.of(hour, minute)
+//                showDialogForTime = false
+//            },
+//            scheduledTime?.hour ?: LocalTime.now().hour,
+//            scheduledTime?.minute ?: LocalTime.now().minute,
+//            true
+//        ).show()
+//    }
+
 
     LazyColumn(
         modifier = Modifier

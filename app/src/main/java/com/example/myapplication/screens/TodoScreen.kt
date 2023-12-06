@@ -22,14 +22,21 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,8 +62,12 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
+import com.example.myapplication.ui.theme.Priority
+import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
+import java.util.Collections
 
 var toBeDeletedRows = hashSetOf<Long>()
 
@@ -185,15 +196,28 @@ fun DeleteIcon(){
     }
 }
 
+fun myCustomComparator() = Comparator<Todo>{ a, b ->
+    when {
+        (a.priority == b.priority) -> 0
+        (a.priority == Priority.HIGH && b.priority == Priority.STANDARD) -> -1
+        (a.priority == Priority.HIGH && b.priority == Priority.LOW) -> -1
+        else -> 1
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
     val subtaskTodoState by subtaskTodo.collectAsState(initial = emptyList())
 
+    Collections.sort(todosState, myCustomComparator())
+
+    IconButton(onClick = {Log.d("Extra","onclick is working")} ) {
+        Text(text = "Hello")
+    }
     Column {
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
-//            val isChecked = remember { mutableStateOf(false) }
             val isChecked = remember { mutableStateOf(todoItem.isFinished) }
             val coroutineScope = rememberCoroutineScope()
             val textDecoration = if (isChecked.value) TextDecoration.LineThrough else null
@@ -203,6 +227,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             var subtask by remember { mutableStateOf(false) }
             var editingDescription by remember { mutableStateOf(todoItem.description) }
             var isEditing  by remember { mutableStateOf(false) }
+
+
             val favIcon = if (isFavClicked) {
                 Icons.Filled.Favorite
             } else {
@@ -213,6 +239,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             } else {
                 Icons.Outlined.Info
             }
+            var dropDownPriorityExpanded by remember { mutableStateOf(false) }
+            var selectedPriority by remember{ mutableStateOf(todoItem.priority) }
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -380,6 +408,45 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             modifier = Modifier.padding(vertical = 5.dp),
                             thickness = 1.dp,
                         )
+                        //Adding priority here
+                        if(isEditing){
+                            ExposedDropdownMenuBox(
+                                expanded = dropDownPriorityExpanded,
+                                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
+                                modifier = Modifier.padding(2.dp)
+                            ){
+                                TextField(value =
+//                                todoItem.priority.toString(),
+                                    selectedPriority.toString(),
+                                    onValueChange = { },
+                                    readOnly = true,
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
+                                    modifier = Modifier.menuAnchor()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = dropDownPriorityExpanded,
+                                    onDismissRequest = { dropDownPriorityExpanded = false }
+                                ) {
+                                    PriorityTodosData().forEach { priorityTodos ->
+                                        DropdownMenuItem(
+                                            text = { Text(priorityTodos.priorityName) },
+                                            onClick = {
+                                                selectedPriority = priorityTodos.priority
+                                                dropDownPriorityExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        else{
+                            Row {
+                                Text(text = "Priority: ")
+                                Text(text = todoItem.priority.toString())
+                            }
+                        }
+
+
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
@@ -523,6 +590,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                             todoItem.copy(
                                                 title = editingTitle,
                                                 description = editingDescription,
+                                                priority = selectedPriority
                                             )
                                         )
                                         subtask = true
