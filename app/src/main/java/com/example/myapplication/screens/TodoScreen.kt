@@ -64,6 +64,7 @@ import com.example.myapplication.todoViewModels.TodoViewModel
 import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
 var toBeDeletedRows = hashSetOf<Long>()
 
@@ -211,6 +212,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             var subtask by remember { mutableStateOf(false) }
             var editingDescription by remember { mutableStateOf(todoItem.description) }
             var isEditing  by remember { mutableStateOf(false) }
+
+
             val favIcon = if (isFavClicked) {
                 Icons.Filled.Favorite
             } else {
@@ -222,7 +225,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                 Icons.Outlined.Info
             }
             var dropDownPriorityExpanded by remember { mutableStateOf(false) }
-            var selectedPriority by remember{ mutableStateOf(PriorityTodosData()[0]) }
+            var selectedPriority by remember{ mutableStateOf(todoItem.priority) }
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -391,40 +394,42 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             thickness = 1.dp,
                         )
                         //Adding priority here
-//                        if(isEditing){
-//                            ExposedDropdownMenuBox(
-//                                expanded = dropDownPriorityExpanded,
-//                                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
-//                                modifier = Modifier.padding(2.dp)
-//                            ){
-//                                TextField(value = selectedPriority.priorityName,
-//                                    onValueChange = { },
-//                                    readOnly = true,
-//                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
-//                                    modifier = Modifier.menuAnchor()
-//                                )
-//                                ExposedDropdownMenu(
-//                                    expanded = dropDownPriorityExpanded,
-//                                    onDismissRequest = { dropDownPriorityExpanded = false }
-//                                ) {
-//                                    PriorityTodosData().forEach { item ->
-//                                        DropdownMenuItem(
-//                                            text = { Text(item.priorityName) },
-//                                            onClick = {
-//                                                selectedPriority = item
-//                                                dropDownPriorityExpanded = false
-//                                            }
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        else{
+                        if(isEditing){
+                            ExposedDropdownMenuBox(
+                                expanded = dropDownPriorityExpanded,
+                                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
+                                modifier = Modifier.padding(2.dp)
+                            ){
+                                TextField(value =
+//                                todoItem.priority.toString(),
+                                    selectedPriority.toString(),
+                                    onValueChange = { },
+                                    readOnly = true,
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
+                                    modifier = Modifier.menuAnchor()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = dropDownPriorityExpanded,
+                                    onDismissRequest = { dropDownPriorityExpanded = false }
+                                ) {
+                                    PriorityTodosData().forEach { priorityTodos ->
+                                        DropdownMenuItem(
+                                            text = { Text(priorityTodos.priorityName) },
+                                            onClick = {
+                                                selectedPriority = priorityTodos.priority
+                                                dropDownPriorityExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        else{
                             Row {
                                 Text(text = "Priority: ")
                                 Text(text = todoItem.priority.toString())
                             }
-//                        }
+                        }
 
 
                         Text(
@@ -570,6 +575,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                             todoItem.copy(
                                                 title = editingTitle,
                                                 description = editingDescription,
+                                                priority = selectedPriority
                                             )
                                         )
                                         subtask = true
