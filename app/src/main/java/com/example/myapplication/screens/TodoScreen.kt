@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -61,10 +62,12 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
+import com.example.myapplication.ui.theme.Priority
 import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
+import java.util.Collections
 
 var toBeDeletedRows = hashSetOf<Long>()
 
@@ -193,16 +196,28 @@ fun DeleteIcon(){
     }
 }
 
+fun myCustomComparator() = Comparator<Todo>{ a, b ->
+    when {
+        (a.priority == b.priority) -> 0
+        (a.priority == Priority.HIGH && b.priority == Priority.STANDARD) -> -1
+        (a.priority == Priority.HIGH && b.priority == Priority.LOW) -> -1
+        else -> 1
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
     val subtaskTodoState by subtaskTodo.collectAsState(initial = emptyList())
 
+    Collections.sort(todosState, myCustomComparator())
+
+    IconButton(onClick = {Log.d("Extra","onclick is working")} ) {
+        Text(text = "Hello")
+    }
     Column {
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
-//            val isChecked = remember { mutableStateOf(false) }
             val isChecked = remember { mutableStateOf(todoItem.isFinished) }
             val coroutineScope = rememberCoroutineScope()
             val textDecoration = if (isChecked.value) TextDecoration.LineThrough else null
