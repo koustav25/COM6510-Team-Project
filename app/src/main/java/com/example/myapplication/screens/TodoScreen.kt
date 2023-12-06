@@ -26,10 +26,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,6 +61,7 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
+import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -185,6 +192,7 @@ fun DeleteIcon(){
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
@@ -213,6 +221,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             } else {
                 Icons.Outlined.Info
             }
+            var dropDownPriorityExpanded by remember { mutableStateOf(false) }
+            var selectedPriority by remember{ mutableStateOf(PriorityTodosData()[0]) }
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -380,6 +390,43 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             modifier = Modifier.padding(vertical = 5.dp),
                             thickness = 1.dp,
                         )
+                        //Adding priority here
+//                        if(isEditing){
+//                            ExposedDropdownMenuBox(
+//                                expanded = dropDownPriorityExpanded,
+//                                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
+//                                modifier = Modifier.padding(2.dp)
+//                            ){
+//                                TextField(value = selectedPriority.priorityName,
+//                                    onValueChange = { },
+//                                    readOnly = true,
+//                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
+//                                    modifier = Modifier.menuAnchor()
+//                                )
+//                                ExposedDropdownMenu(
+//                                    expanded = dropDownPriorityExpanded,
+//                                    onDismissRequest = { dropDownPriorityExpanded = false }
+//                                ) {
+//                                    PriorityTodosData().forEach { item ->
+//                                        DropdownMenuItem(
+//                                            text = { Text(item.priorityName) },
+//                                            onClick = {
+//                                                selectedPriority = item
+//                                                dropDownPriorityExpanded = false
+//                                            }
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        else{
+                            Row {
+                                Text(text = "Priority: ")
+                                Text(text = todoItem.priority.toString())
+                            }
+//                        }
+
+
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
