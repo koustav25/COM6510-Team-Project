@@ -485,7 +485,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 priority = priorityVal
                             )
                         )
-                        Log.i("ids", "Todo inserted successfull: ${insertedTodoId}")
+                        Log.i("ids", "Todo inserted successfully: ${insertedTodoId}")
                         for(subtask in selectedText.subTaskDetails) {
                             subtaskTodoViewModel.addSubtaskTodo(
                                 SubtaskTodo(

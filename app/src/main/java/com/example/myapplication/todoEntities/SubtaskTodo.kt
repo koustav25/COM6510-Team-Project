@@ -16,8 +16,8 @@ data class SubtaskTodo(
     @PrimaryKey(autoGenerate = true)
     val subtaskID: Long = 0,
     var subtaskTitle: String,
-    val subtaskScheduledDate: String,
-    val subtaskScheduledTime: String,
+    var subtaskScheduledDate: String,
+    var subtaskScheduledTime: String,
     val isSubtaskCompleted: Boolean
 ){
     companion object{

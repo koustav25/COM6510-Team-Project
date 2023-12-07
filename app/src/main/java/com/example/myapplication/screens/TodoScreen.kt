@@ -612,6 +612,17 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                     } else {
                                         null
                                     }
+
+                                    var isEditingSubtaskDate by remember { mutableStateOf(false) }
+                                    var isEditingSubtaskTime by remember { mutableStateOf(false) }
+                                    val editSubtaskDatePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+                                    val editSubtaskTimePickerState = rememberTimePickerState()
+                                    val subtaskSnackScope = rememberCoroutineScope()
+                                    val editSubtaskTimeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+                                    val subtaskSnackState = remember{ SnackbarHostState() }
+                                    var editedSubtaskScheduledDate by remember { mutableStateOf("null") }
+                                    var editedSubtaskScheduledTime by remember { mutableStateOf("null") }
+
                                     //Row
                                     Row(
                                         modifier = Modifier
@@ -638,23 +649,99 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                         if(isEditing){
                                             Column {
                                                 OutlinedTextField(
-                                                    value = subtaskItem.subtaskTitle,
+                                                    value = subtaskEditing,
                                                     onValueChange = {
-                                                        subtaskItem.subtaskTitle = it
+                                                        subtaskEditing = it
                                                     }
                                                 )
                                                 Row {
-                                                    IconButton(onClick = { /*TODO:Open date picker dialog and handle date update*/ }) {
-                                                        Icon(
-                                                            Icons.Default.CalendarToday,
-                                                            contentDescription = "Update Date"
-                                                        )
+                                                    IconButton(onClick = {
+                                                        isEditingSubtaskDate = !isEditingSubtaskDate
+                                                    }) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .size(10.dp),
+                                                            verticalArrangement = Arrangement.Center,
+                                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Filled.DateRange, "Date Picker"
+                                                            )
+                                                            Text(text = "Date", fontSize = 8.sp)
+                                                        }
                                                     }
-                                                    IconButton(onClick = { /*TODO: Open time picker dialog and handle time update */ }) {
-                                                        Icon(
-                                                            Icons.Default.AccessTime,
-                                                            contentDescription = "Update Time"
-                                                        )
+
+                                                    //Time Picker
+                                                    IconButton(onClick = {
+                                                        isEditingSubtaskTime = !isEditingSubtaskTime
+                                                    }) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .size(10.dp),
+                                                            verticalArrangement = Arrangement.Center,
+                                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Outlined.Info, "Time Picker"
+                                                            )
+                                                            Text(text = "Time", fontSize = 8.sp)
+                                                        }
+                                                    }
+
+                                                    if (isEditingSubtaskDate) {
+                                                        DatePickerDialog(
+                                                            onDismissRequest = { isEditingSubtaskDate = false },
+                                                            confirmButton = {
+                                                                TextButton(onClick = {
+                                                                    val selectedDateMillis = editSubtaskDatePickerState.selectedDateMillis
+                                                                    if(selectedDateMillis!=null){
+                                                                        editedSubtaskScheduledDate = handleSelectedDate(selectedDateMillis)
+                                                                        subtaskItem.subtaskScheduledDate = editedSubtaskScheduledDate
+                                                                    }
+                                                                    isEditingSubtaskDate = false
+                                                                    subtaskSnackScope.launch{
+                                                                        subtaskSnackState.showSnackbar(
+                                                                            "Selected Date: ${editSubtaskDatePickerState.selectedDateMillis}"
+                                                                        )
+                                                                    }
+                                                                }
+                                                                ) {
+                                                                    Text(text = "Ok")
+                                                                }
+                                                            },
+                                                            dismissButton = {
+                                                                TextButton(
+                                                                    onClick = { isEditingSubtaskDate = false }
+                                                                ) {
+                                                                    Text(text = "Cancel")
+                                                                }
+                                                            }
+                                                        ) {
+                                                            DatePicker(
+                                                                state = editSubtaskDatePickerState,
+                                                                modifier = Modifier.padding(8.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                    if (isEditingSubtaskTime) {
+                                                        TimePickerDialog(
+                                                            onCancel = { isEditingSubtaskTime = false },
+                                                            onConfirm = {
+                                                                val cal = Calendar.getInstance()
+                                                                cal.set(Calendar.HOUR_OF_DAY, editSubtaskTimePickerState.hour)
+                                                                cal.set(Calendar.MINUTE, editSubtaskTimePickerState.minute)
+                                                                cal.isLenient = false
+                                                                editedSubtaskScheduledTime = editSubtaskTimeFormatter.format(cal.time)
+                                                                subtaskItem.subtaskScheduledTime = editedSubtaskScheduledTime
+                                                                subtaskSnackScope.launch {
+                                                                    subtaskSnackState.showSnackbar("Entered time: ${editSubtaskTimeFormatter.format(cal.time)}")
+                                                                }
+                                                                isEditingSubtaskTime = false
+                                                            }) {
+                                                            TimePicker(state = editSubtaskTimePickerState)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -685,12 +772,11 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                     var subtaskEditingTime by remember { mutableStateOf(subtaskItem.subtaskScheduledTime) }
 
                                     if(subtask){
-
                                         subtaskTodoViewModel.updateSubtaskTodo(
                                         subtaskItem.copy(
                                             subtaskTitle = subtaskEditing,
-                                            subtaskScheduledDate = subtaskEditingDate,
-                                            subtaskScheduledTime = subtaskEditingTime
+                                            subtaskScheduledDate = subtaskItem.subtaskScheduledDate,
+                                            subtaskScheduledTime = subtaskItem.subtaskScheduledTime
                                          )
                                         )
                                     }
