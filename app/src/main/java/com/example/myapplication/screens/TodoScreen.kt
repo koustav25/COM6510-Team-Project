@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
@@ -26,6 +28,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,8 +40,13 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -67,7 +77,10 @@ import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Collections
+import java.util.Locale
 
 var toBeDeletedRows = hashSetOf<Long>()
 
@@ -228,6 +241,16 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             var editingDescription by remember { mutableStateOf(todoItem.description) }
             var isEditing  by remember { mutableStateOf(false) }
 
+
+            var isEditingDate by remember { mutableStateOf(false) }
+            var isEditingTime by remember { mutableStateOf(false) }
+            val editDatePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+            val editTimePickerState = rememberTimePickerState()
+            val snackScope = rememberCoroutineScope()
+            val editTimeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+            val snackState = remember{ SnackbarHostState() }
+            var editedScheduledDate by remember { mutableStateOf("null") }
+            var editedScheduledTime by remember { mutableStateOf("null") }
 
             val favIcon = if (isFavClicked) {
                 Icons.Filled.Favorite
@@ -446,28 +469,126 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             }
                         }
 
-
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
-                                    if (todoItem.scheduledDate == "null") {
-                                        append("Scheduled Date: Not scheduled")
-                                    } else {
-                                        append("Scheduled Date: " + todoItem.scheduledDate)
-                                    }
+                        if(isEditing){
+                            Text("Edit Scheduled Date: ")
+                            IconButton(onClick = {
+                                isEditingDate = !isEditingDate
+                            }) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .size(10.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        Icons.Filled.DateRange, "Date Picker"
+                                    )
+                                    Text(text = "Date", fontSize = 8.sp)
                                 }
-                            })
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
-                                    if (todoItem.scheduledTime == "null") {
-                                        append("Scheduled Time: Not scheduled")
-                                    } else {
-                                        append("Scheduled Time: " + todoItem.scheduledTime)
-                                    }
+                            }
 
+                            //Time Picker
+                            Text("Edit Scheduled Time: ")
+                            IconButton(onClick = {
+                                isEditingTime = !isEditingTime
+                            }) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .size(10.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.Info, "Time Picker"
+                                    )
+                                    Text(text = "Time", fontSize = 8.sp)
                                 }
-                            })
+                            }
+
+                            if (isEditingDate) {
+                                DatePickerDialog(
+                                    onDismissRequest = { isEditingDate = false },
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            val selectedDateMillis = editDatePickerState.selectedDateMillis
+                                            if(selectedDateMillis!=null){
+                                                editedScheduledDate = handleSelectedDate(selectedDateMillis)
+                                            }
+                                            isEditingDate = false
+                                            snackScope.launch{
+                                                snackState.showSnackbar(
+                                                    "Selected Date: ${editDatePickerState.selectedDateMillis}"
+                                                )
+                                            }
+                                        }
+                                        ) {
+                                            Text(text = "Ok")
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = { isEditingDate = false }
+                                        ) {
+                                            Text(text = "Cancel")
+                                        }
+                                    }
+                                ) {
+                                    DatePicker(
+                                        state = editDatePickerState,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
+                            if (isEditingTime) {
+                                TimePickerDialog(
+                                    onCancel = { isEditingTime = false },
+                                    onConfirm = {
+                                        val cal = Calendar.getInstance()
+                                        cal.set(Calendar.HOUR_OF_DAY, editTimePickerState.hour)
+                                        cal.set(Calendar.MINUTE, editTimePickerState.minute)
+                                        cal.isLenient = false
+                                        editedScheduledTime = editTimeFormatter.format(cal.time)
+                                        snackScope.launch {
+                                            snackState.showSnackbar("Entered time: ${editTimeFormatter.format(cal.time)}")
+                                        }
+                                        isEditingTime = false
+                                    }) {
+                                    TimePicker(state = editTimePickerState)
+                                }
+                            }
+
+                        }
+
+
+                        else {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
+                                        if (todoItem.scheduledDate == "null") {
+                                            append("Scheduled Date: Not scheduled")
+                                        } else {
+                                            append("Scheduled Date: " + todoItem.scheduledDate)
+                                        }
+                                    }
+                                })
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
+                                        if (todoItem.scheduledTime == "null") {
+                                            append("Scheduled Time: Not scheduled")
+                                        } else {
+                                            append("Scheduled Time: " + todoItem.scheduledTime)
+                                        }
+
+                                    }
+                                })
+                        }
+
+
+
+
                         val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
                         var subtasksToBeDeleted by remember {mutableStateOf < List<SubtaskTodo>>(emptyList())}
                         //Subtasks
@@ -590,7 +711,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                             todoItem.copy(
                                                 title = editingTitle,
                                                 description = editingDescription,
-                                                priority = selectedPriority
+                                                priority = selectedPriority,
+                                                scheduledDate = editedScheduledDate,
+                                                scheduledTime = editedScheduledTime
                                             )
                                         )
                                         subtask = true
