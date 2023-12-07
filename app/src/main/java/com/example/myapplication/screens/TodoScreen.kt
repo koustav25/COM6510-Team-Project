@@ -636,11 +636,27 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                 })
                                         }
                                         if(isEditing){
-                                            IconButton(onClick = { /*TODO:Open date picker dialog and handle date update*/ }) {
-                                                Icon(Icons.Default.CalendarToday, contentDescription = "Update Date")
-                                            }
-                                            IconButton(onClick = { /*TODO: Open time picker dialog and handle time update */ }) {
-                                                Icon(Icons.Default.AccessTime, contentDescription = "Update Time")
+                                            Column {
+                                                OutlinedTextField(
+                                                    value = subtaskItem.subtaskTitle,
+                                                    onValueChange = {
+                                                        subtaskItem.subtaskTitle = it
+                                                    }
+                                                )
+                                                Row {
+                                                    IconButton(onClick = { /*TODO:Open date picker dialog and handle date update*/ }) {
+                                                        Icon(
+                                                            Icons.Default.CalendarToday,
+                                                            contentDescription = "Update Date"
+                                                        )
+                                                    }
+                                                    IconButton(onClick = { /*TODO: Open time picker dialog and handle time update */ }) {
+                                                        Icon(
+                                                            Icons.Default.AccessTime,
+                                                            contentDescription = "Update Time"
+                                                        )
+                                                    }
+                                                }
                                             }
                                         }else{
                                         Text(
@@ -649,8 +665,18 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                 withStyle(style = SpanStyle(textDecoration = textDecoration)) {
                                                     append(subtaskItem.subtaskTitle)
                                                     // Add a line break and then append the date and time
-                                                    append("\nScheduled Date: ${subtaskItem.subtaskScheduledDate ?: "Not scheduled"}")
-                                                    append("\nScheduled Time: ${subtaskItem.subtaskScheduledTime ?: "Not scheduled"}")
+                                                    //Date
+                                                    if (subtaskItem.subtaskScheduledDate == "") {
+                                                        append("\nScheduled Date: Not scheduled")
+                                                    } else {
+                                                        append("\nScheduled Date: " + subtaskItem.subtaskScheduledDate)
+                                                    }
+                                                    //Time
+                                                    if (subtaskItem.subtaskScheduledTime == "") {
+                                                        append("\nScheduled Time: Not scheduled")
+                                                    } else {
+                                                        append("\nScheduled Time: " + subtaskItem.subtaskScheduledTime)
+                                                    }
                                                 }
                                             },
                                         )}
