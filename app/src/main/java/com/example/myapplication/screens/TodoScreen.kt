@@ -57,8 +57,12 @@ import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.CalendarToday
+
 
 var toBeDeletedRows = hashSetOf<Long>()
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -444,32 +448,35 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                 })
                                         }
                                         if(isEditing){
-                                            OutlinedTextField(
-                                                value = subtaskEditing,
-                                                onValueChange = { subtaskEditing = it },
-                                                label = { Text("Title") },
-                                                keyboardOptions = KeyboardOptions.Default.copy(
-                                                    imeAction = ImeAction.Done
-                                                ),
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                            )
+                                            IconButton(onClick = { /*TODO:Open date picker dialog and handle date update*/ }) {
+                                                Icon(Icons.Default.CalendarToday, contentDescription = "Update Date")
+                                            }
+                                            IconButton(onClick = { /*TODO: Open time picker dialog and handle time update */ }) {
+                                                Icon(Icons.Default.AccessTime, contentDescription = "Update Time")
+                                            }
                                         }else{
                                         Text(
                                             modifier = Modifier.fillMaxWidth(0.9f),
                                             text = buildAnnotatedString {
                                                 withStyle(style = SpanStyle(textDecoration = textDecoration)) {
                                                     append(subtaskItem.subtaskTitle)
+                                                    // Add a line break and then append the date and time
+                                                    append("\nScheduled Date: ${subtaskItem.subtaskScheduledDate ?: "Not scheduled"}")
+                                                    append("\nScheduled Time: ${subtaskItem.subtaskScheduledTime ?: "Not scheduled"}")
                                                 }
                                             },
                                         )}
                                     }
+                                    var subtaskEditingDate by remember { mutableStateOf(subtaskItem.subtaskScheduledDate) }
+                                    var subtaskEditingTime by remember { mutableStateOf(subtaskItem.subtaskScheduledTime) }
 
                                     if(subtask){
 
                                         subtaskTodoViewModel.updateSubtaskTodo(
                                         subtaskItem.copy(
                                             subtaskTitle = subtaskEditing,
+                                            subtaskScheduledDate = subtaskEditingDate,
+                                            subtaskScheduledTime = subtaskEditingTime
                                          )
                                         )
                                     }
