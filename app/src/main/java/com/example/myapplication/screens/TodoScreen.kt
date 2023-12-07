@@ -1,6 +1,7 @@
 package com.example.myapplication.screens
 
 import android.annotation.SuppressLint
+import android.graphics.ImageDecoder
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -83,6 +84,9 @@ import java.util.Collections
 import java.util.Locale
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
 
 
 var toBeDeletedRows = hashSetOf<Long>()
@@ -244,7 +248,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             var subtask by remember { mutableStateOf(false) }
             var editingDescription by remember { mutableStateOf(todoItem.description) }
             var isEditing  by remember { mutableStateOf(false) }
-
+            val context = LocalContext.current
 
             var isEditingDate by remember { mutableStateOf(false) }
             var isEditingTime by remember { mutableStateOf(false) }
@@ -470,6 +474,19 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             Row {
                                 Text(text = "Priority: ")
                                 Text(text = todoItem.priority.toString())
+                            }
+                        }
+
+                        val uriCheck = todoItem.imageUri
+                        if(uriCheck != null) {
+                            val uri = Uri.parse(todoItem.imageUri)
+                            if (uri != null) {
+                                val imageBitmap = remember(uri) {
+                                    ImageDecoder.decodeBitmap(
+                                        ImageDecoder.createSource(context.contentResolver, uri)
+                                    ).asImageBitmap()
+                                }
+                                Image(imageBitmap, null)
                             }
                         }
 

@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,7 @@ import com.example.myapplication.R
 
 object Gallery {
     @Composable
-    fun OpenGallery(context: Context) {
+    fun OpenGallery(context: Context, onImageSelected: (String?) -> Unit) {
         var pickedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
         val imageFromGalleryLaucher = rememberLauncherForActivityResult(
             ActivityResultContracts.PickVisualMedia()
@@ -43,28 +44,32 @@ object Gallery {
                 pickedImageBitmap = ImageDecoder.decodeBitmap(
                     ImageDecoder.createSource(contentResolver, uri)
                 ).asImageBitmap()
-
             }
+            onImageSelected(uri.toString())
         }
-        IconButton(onClick = {
-            imageFromGalleryLaucher.launch(
-                PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .size(10.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.baseline_insert_photo_24),
-                    contentDescription = "Search"
+        Column {
+            IconButton(onClick = {
+                imageFromGalleryLaucher.launch(
+                    PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
-                Text("Gallery", fontSize = 8.sp)
+            }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .size(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_insert_photo_24),
+                        contentDescription = "Search"
+                    )
+                    Text("Gallery", fontSize = 8.sp)
+                }
+            }
+            pickedImageBitmap?.let{ imageBitmap ->
+                Image(imageBitmap, null)
             }
         }
-
     }
 }
