@@ -179,6 +179,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var dropDownPriorityExpanded by remember { mutableStateOf(false) }
     var selectedPriority by remember{ mutableStateOf(PriorityTodosData()[0]) }
 
+    var imageURI by remember{ mutableStateOf<String?>(null) }
+
     LazyColumn(
         modifier = Modifier
             .padding(16.dp)
@@ -295,6 +297,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
 
                     val isSubtaskChecked = remember { mutableStateOf(false) }
                     val textDecoration = if (isSubtaskChecked.value) TextDecoration.LineThrough else null
+
+
 
                     LaunchedEffect(subtask){
                         subtaskTitle = subtask.subtaskTitle
@@ -482,7 +486,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
-                                priority = priorityVal
+                                priority = priorityVal,
+                                imageUri = imageURI
                             )
                         )
                         Log.i("ids", "Todo inserted successfully: ${insertedTodoId}")
@@ -681,7 +686,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
-                                priority = priorityVal
+                                priority = priorityVal,
+                                imageUri = imageURI
                             )
                         )
                     }
@@ -790,7 +796,11 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     //location
 //                    Location.GetLocation(context)
                     //open Gallery
-                    Gallery.OpenGallery(context)
+
+                    Gallery.OpenGallery(context){
+                            selectedUri ->
+                        imageURI = selectedUri
+                    }
                     //open Camera
                     Camera.RunCamera(context)
                 }

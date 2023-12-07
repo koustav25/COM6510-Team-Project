@@ -21,7 +21,8 @@ data class  Todo(
     val scheduledTime: String,
     val isFinished: Boolean,
     val isDeleted: Boolean,
-    val priority: Priority
+    val priority: Priority,
+    val imageUri: String? = null
 ){
     companion object{
         const val TABLE_NAME = "todos"
