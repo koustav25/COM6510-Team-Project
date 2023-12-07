@@ -753,14 +753,14 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                     append(subtaskItem.subtaskTitle)
                                                     // Add a line break and then append the date and time
                                                     //Date
-                                                    if (subtaskItem.subtaskScheduledDate == "") {
-                                                        append("\nScheduled Date: Not scheduled")
+                                                    if (subtaskItem.subtaskScheduledDate == "null") {
+//                                                        append("\nScheduled Date: Not scheduled")
                                                     } else {
                                                         append("\nScheduled Date: " + subtaskItem.subtaskScheduledDate)
                                                     }
                                                     //Time
-                                                    if (subtaskItem.subtaskScheduledTime == "") {
-                                                        append("\nScheduled Time: Not scheduled")
+                                                    if (subtaskItem.subtaskScheduledTime == "null") {
+//                                                        append("\nScheduled Time: Not scheduled")
                                                     } else {
                                                         append("\nScheduled Time: " + subtaskItem.subtaskScheduledTime)
                                                     }
