@@ -94,6 +94,7 @@ import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -474,6 +475,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 title = title,
                                 description = description,
                                 date = LocalDate.now().toString(),
+                                time = LocalTime.now().toString(),
                                 isFavorite = isFav,
                                 isImportant = isImp,
                                 scheduledDate = dateStoreInDatabase,
@@ -672,6 +674,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 title = title,
                                 description = description,
                                 date = LocalDate.now().toString(),
+                                time = LocalTime.now().toString(),
                                 isFavorite = isFav,
                                 isImportant = isImp,
                                 scheduledDate = dateStoreInDatabase,

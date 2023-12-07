@@ -14,6 +14,7 @@ data class  Todo(
     var title: String,
     var description: String,
     val date: String,
+    val time: String,
     val isFavorite: Boolean,
     val isImportant: Boolean,
     val scheduledDate: String,
