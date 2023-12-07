@@ -80,15 +80,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TemplateTodos
 import com.example.myapplication.function.Camera
 import com.example.myapplication.function.Gallery
-//import com.example.myapplication.function.Location
+import com.example.myapplication.function.Location.Coordinate
+import com.example.myapplication.function.Location.Location
 import com.example.myapplication.function.Web
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
-import com.example.myapplication.ui.theme.Priority
-import com.example.myapplication.ui.theme.PriorityTodosData
 //import com.example.myapplication.ui.theme.Priority
 //import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.launch
@@ -109,12 +108,14 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var description by remember { mutableStateOf("") }
     var isFav by remember{ mutableStateOf(false) }
     var isImp by remember{ mutableStateOf(false) }
-    var priorityVal by remember{ mutableStateOf(Priority.STANDARD) }
+//    var priorityVal by remember{ mutableStateOf(Priority.STANDARD) }
 
     var subTitle by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val buttonCoroutineScope = rememberCoroutineScope()
+    //store the location
+    var coordinate by remember {mutableStateOf(Coordinate("",""))}
 
     val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
     val timePickerState = rememberTimePickerState()
@@ -127,37 +128,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var timeStoreInDatabase by remember { mutableStateOf("null") }
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
-//    var scheduledDate by remember { mutableStateOf<LocalDate?>(null) }
-//    var scheduledTime by remember { mutableStateOf<LocalTime?>(null) }
 
-//    Button(onClick = { showDialogForDate = true }) {
-//        Text("Select Date")
-//    }
-//
-//    // Trigger to open TimePicker
-//    Button(onClick = { showDialogForTime = true }) {
-//        Text("Select Time")
-//    }
-//
-//    // Custom DatePicker
-//    CustomDatePicker(
-//        showDialog = showDialogForDate,
-//        onDateSelected = { date ->
-//            scheduledDate = date
-//            showDialogForDate = false
-//        },
-//        onDismissRequest = { showDialogForDate = false }
-//    )
-//
-//    // Custom TimePicker
-//    CustomTimePicker(
-//        showDialog = showDialogForTime,
-//        onTimeSelected = { time ->
-//            scheduledTime = time
-//            showDialogForTime = false
-//        },
-//        onDismissRequest = { showDialogForTime = false }
-//    )
 
 
     var isFavClicked by remember { mutableStateOf(false) }
@@ -176,8 +147,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var dropDownExpanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(templateTodos[0]) }
 
-    var dropDownPriorityExpanded by remember { mutableStateOf(false) }
-    var selectedPriority by remember{ mutableStateOf(PriorityTodosData()[0]) }
+//    var dropDownPriorityExpanded by remember { mutableStateOf(false) }
+//    var selectedPriority by remember{ mutableStateOf(PriorityTodosData()[0]) }
 
     LazyColumn(
         modifier = Modifier
@@ -216,40 +187,40 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                 }
             }
 
-//            Priority
-            Text(
-                text="Select a priority"
-           )
-            ExposedDropdownMenuBox(
-                expanded = dropDownPriorityExpanded,
-                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
-                modifier = Modifier.padding(2.dp)
-            ){
-                TextField(value = selectedPriority.priorityName,
-                    onValueChange = { },
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
-                    modifier = Modifier.menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = dropDownPriorityExpanded,
-                    onDismissRequest = { dropDownPriorityExpanded = false }
-                ) {
-                    PriorityTodosData().forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(item.priorityName) },
-                        onClick = {
-                            selectedPriority = item
-                            dropDownPriorityExpanded = false
-                        }
-                    )
-                }
-                }
-            }
+            //Priority
+//            Text(
+//                text="Select a priority"
+//           )
+//            ExposedDropdownMenuBox(
+//                expanded = dropDownPriorityExpanded,
+//                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
+//                modifier = Modifier.padding(2.dp)
+//            ){
+//                TextField(value = selectedPriority.priorityName,
+//                    onValueChange = { },
+//                    readOnly = true,
+//                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
+//                    modifier = Modifier.menuAnchor()
+//                )
+//                ExposedDropdownMenu(
+//                    expanded = dropDownPriorityExpanded,
+//                    onDismissRequest = { dropDownPriorityExpanded = false }
+//                ) {
+//                    PriorityTodosData().forEach { item ->
+//                    DropdownMenuItem(
+//                        text = { Text(item.priorityName) },
+//                        onClick = {
+//                            selectedPriority = item
+//                            dropDownPriorityExpanded = false
+//                        }
+//                    )
+//                }
+//                }
+//            }
 
-            LaunchedEffect(selectedPriority ){
-                priorityVal = selectedPriority.priority
-            }
+//            LaunchedEffect(selectedPriority ){
+//                priorityVal = selectedPriority.priority
+//            }
 
             LaunchedEffect(selectedText){
                 title = selectedText.todoTitle
@@ -384,6 +355,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                                     Text(text = "Time", fontSize = 8.sp)
                                                 }
                                             }
+                                            coordinate = Location.GetLocation(context)!!
                                         }
 
 
@@ -482,7 +454,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
-                                priority = priorityVal
+                                //latitude = coordinate.latitude,
+                                //longitude = coordinate.longitude
+//                                priority = priorityVal
                             )
                         )
                         Log.i("ids", "Todo inserted successfully: ${insertedTodoId}")
@@ -681,7 +655,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
-                                priority = priorityVal
+                               // longitude = coordinate.longitude,
+                               // latitude = coordinate.latitude
+//                                priority = priorityVal
                             )
                         )
                     }
@@ -788,7 +764,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         }
                     }
                     //location
-//                    Location.GetLocation(context)
+                    coordinate= Location.GetLocation(context)!!
                     //open Gallery
                     Gallery.OpenGallery(context)
                     //open Camera

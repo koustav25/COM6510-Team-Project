@@ -2,8 +2,6 @@ package com.example.myapplication.todoEntities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.myapplication.ui.theme.Priority
-
 //import com.example.myapplication.ui.theme.Priority
 
 // Todo.kt
@@ -21,7 +19,9 @@ data class  Todo(
     val scheduledTime: String,
     val isFinished: Boolean,
     val isDeleted: Boolean,
-    val priority: Priority
+   // val longitude:String?,
+    //val latitude:String?,
+//    val priority: Priority
 ){
     companion object{
         const val TABLE_NAME = "todos"
