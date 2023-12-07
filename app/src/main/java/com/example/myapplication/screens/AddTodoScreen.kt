@@ -802,7 +802,10 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         imageURI = selectedUri
                     }
                     //open Camera
-                    Camera.RunCamera(context)
+                    Camera.RunCamera(context){
+                        selectedUri ->
+                        imageURI = selectedUri
+                    }
                 }
                 //Handling Date dialog
                 if (showDialogForDate) {

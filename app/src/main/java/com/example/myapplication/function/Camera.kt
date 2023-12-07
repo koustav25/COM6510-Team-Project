@@ -12,6 +12,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,7 +49,7 @@ object Camera{
 
     @SuppressLint("SuspiciousIndentation")
     @Composable
-    fun RunCamera(context: Context) {
+    fun RunCamera(context: Context, onImageSelected: (String?) -> Unit) {
         var hasCameraPermission by remember {
             mutableStateOf(false)
         }
@@ -79,28 +80,40 @@ object Camera{
                 cameraImageUri = null
             } else {
                 cameraIamgeBitmap = getImageBitmap(cameraImageUri,context)?.asImageBitmap()
+                onImageSelected(cameraImageUri?.toString())
             }
             Log.i("picture_eg", "$captured $cameraImageUri")
         }
-        IconButton(onClick ={
-                    if (hasCameraPermission) {
+        Column {
+            IconButton(onClick = {
+                if (hasCameraPermission) {
                     cameraIamgeBitmap = null
                     cameraImageUri = FileProvider.getUriForFile(
-                        context.applicationContext, context.applicationContext.getPackageName() + ".provider", newImageFile(context)
+                        context.applicationContext,
+                        context.applicationContext.getPackageName() + ".provider",
+                        newImageFile(context)
                     )
                     imageFromCameraLaucher.launch(cameraImageUri)
-                    }
-                }){
-                    Column(modifier = Modifier
+                }
+            }) {
+                Column(
+                    modifier = Modifier
                         .fillMaxSize()
                         .size(10.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(painter= painterResource(R.drawable.baseline_camera_alt_24), contentDescription = "camera")
-                        Text("Camera", fontSize = 8.sp)
-                    }
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_camera_alt_24),
+                        contentDescription = "camera"
+                    )
+                    Text("Camera", fontSize = 8.sp)
                 }
+            }
+            cameraIamgeBitmap?.let{ imageBitmap ->
+                Image(imageBitmap, null)
+            }
+        }
     }
 
     fun getImageBitmap(uri: Uri?,context: Context): Bitmap? {
