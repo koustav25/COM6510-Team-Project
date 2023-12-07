@@ -753,24 +753,19 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                     append(subtaskItem.subtaskTitle)
                                                     // Add a line break and then append the date and time
                                                     //Date
-                                                    if (subtaskItem.subtaskScheduledDate == "null") {
-//                                                        append("\nScheduled Date: Not scheduled")
-                                                    } else {
+                                                    if (subtaskItem.subtaskScheduledDate != "null") {
                                                         append("\nScheduled Date: " + subtaskItem.subtaskScheduledDate)
                                                     }
                                                     //Time
-                                                    if (subtaskItem.subtaskScheduledTime == "null") {
-//                                                        append("\nScheduled Time: Not scheduled")
-                                                    } else {
+                                                    if (subtaskItem.subtaskScheduledTime != "null") {
                                                         append("\nScheduled Time: " + subtaskItem.subtaskScheduledTime)
                                                     }
                                                 }
                                             },
                                         )}
                                     }
-                                    var subtaskEditingDate by remember { mutableStateOf(subtaskItem.subtaskScheduledDate) }
-                                    var subtaskEditingTime by remember { mutableStateOf(subtaskItem.subtaskScheduledTime) }
 
+                                    //Updating the subtask
                                     if(subtask){
                                         subtaskTodoViewModel.updateSubtaskTodo(
                                         subtaskItem.copy(
