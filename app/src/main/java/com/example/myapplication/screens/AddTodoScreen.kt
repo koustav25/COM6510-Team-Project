@@ -1,6 +1,5 @@
 package com.example.myapplication.screens
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -667,7 +666,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         .padding(bottom = 16.dp)
                         .fillMaxWidth()
                 )
-                var imageURI by remember{ mutableStateOf<String?>(null) }
+
                 fun insertTodo() {
                     buttonCoroutineScope.launch {
                         todoViewModel.addTodo(
@@ -682,8 +681,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 scheduledTime = timeStoreInDatabase,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
-                                priority = priorityVal,
-                                imageUri = imageURI
+                                priority = priorityVal
                             )
                         )
                     }
@@ -792,10 +790,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     //location
 //                    Location.GetLocation(context)
                     //open Gallery
-                    Gallery.OpenGallery(context){
-                        selectedUri ->
-                        imageURI = selectedUri
-                    }
+                    Gallery.OpenGallery(context)
                     //open Camera
                     Camera.RunCamera(context)
                 }
