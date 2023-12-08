@@ -86,6 +86,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.graphics.asImageBitmap
 
 
@@ -873,4 +874,78 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
     }
 }
 
+enum class SortOption {
+    DATE, TITLE
+}
+
+@Composable
+fun TodoScreen(viewModel: TodoViewModel) {
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedSortOption by remember { mutableStateOf(SortOption.DATE) }
+    var sortedTodos = viewModel.getSortedTodos(selectedSortOption).collectAsState(initial = emptyList())
+
+    Column(modifier = Modifier.padding(3.dp)) {
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopEnd){
+            Text(text = "Sort by: ${selectedSortOption.name}" , modifier = Modifier.clickable { expanded = true })
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(text = { "Date" }, onClick = {
+                    selectedSortOption = SortOption.DATE
+                    expanded = false
+                })
+                DropdownMenuItem(text = { "Title" }, onClick = {
+                    selectedSortOption = SortOption.TITLE
+                    expanded = false
+                })
+
+            }
+    }
+        // Rest UI, including the sorted todo list
+    }
+}
+
+//@Composable
+//fun TodoList(todos: List<Todo>) {
+//    LazyColumn {
+//        items(todos) { todo -> TodoCard(todo)
+//        }
+//    }
+//}
+//
+//@Composable
+//fun TodoCard(todo: Todo) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(3.dp),
+//        elevation = 2.dp,
+//        shape = RoundedCornerShape(8.dp)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(
+//                text = todo.title,
+//                fontWeight = FontWeight.Bold,
+//                fontSize = 18.sp
+//            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Text(text = todo.description)
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Row {
+//                IconButton(onClick = { /* TODO: Implement favorite action */ }) {
+//                    Icon(
+//                        imageVector = if (todo.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+//                        contentDescription = "Favorite"
+//                    )
+//                }
+//                IconButton(onClick = { /* TODO: Implement important action */ }) {
+//                    Icon(
+//                        imageVector = if (todo.isImportant) Icons.Filled.Info else Icons.Outlined.Info,
+//                        contentDescription = "Important"
+//                    )
+//                }
+//                // Additional actions can be added here
+//            }
+//        }
+//    }
+//}
 

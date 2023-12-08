@@ -3,12 +3,14 @@ package com.example.myapplication.todoViewModels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.screens.SortOption
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
@@ -96,6 +98,13 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     fun isFinishedEmpty(): Boolean = runBlocking {
         val todosList = finishedTodos.firstOrNull()
         todosList.isNullOrEmpty()
+    }
+
+    fun getSortedTodos(sortOption: SortOption): Flow<List<Todo>>{
+        return when (sortOption){
+            SortOption.DATE -> allTodos.map { todos -> todos.sortedBy { it.date } }
+            SortOption.TITLE -> allTodos.map { todos -> todos.sortedBy { it.title } }
+        }
     }
 
 }
