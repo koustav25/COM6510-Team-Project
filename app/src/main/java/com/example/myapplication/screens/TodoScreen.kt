@@ -234,9 +234,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
 
     Collections.sort(todosState, myCustomComparator())
 
-    IconButton(onClick = {Log.d("Extra","onclick is working")} ) {
-        Text(text = "Hello")
-    }
+//    IconButton(onClick = {Log.d("Extra","onclick is working")} ) {
+//        Text(text = "Hello")
+//    }
     Column {
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
@@ -483,11 +483,18 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             val uri = Uri.parse(todoItem.imageUri)
                             if (uri != null) {
                                 val imageBitmap = remember(uri) {
-                                    ImageDecoder.decodeBitmap(
-                                        ImageDecoder.createSource(context.contentResolver, uri)
-                                    ).asImageBitmap()
+                                    try {
+                                        ImageDecoder.decodeBitmap(
+                                            ImageDecoder.createSource(context.contentResolver, uri)
+                                        ).asImageBitmap()
+                                    }catch(e: Exception){
+                                        Log.e("Exception", "$e")
+                                        null
+                                    }
                                 }
-                                Image(imageBitmap, null)
+                                imageBitmap?.let{
+                                    Image(it, null)
+                                }
                             }
                         }
 
