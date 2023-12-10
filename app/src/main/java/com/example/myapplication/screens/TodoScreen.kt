@@ -73,6 +73,7 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.myapplication.ui.theme.Priority
 import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
@@ -87,7 +88,9 @@ import androidx.compose.material.icons.filled.CalendarToday
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.asImageBitmap
+import kotlinx.coroutines.Dispatchers
 
 
 var toBeDeletedRows = hashSetOf<Long>()
@@ -102,92 +105,124 @@ LazyColumn(
         modifier = Modifier
             .padding(5.dp)
             .fillMaxSize())
-         {item{
-             if(todoViewModel.isEmpty()){
-                 Text(text = ("No Todos"))
-             }
-             else{
-                 if(selectedCategory?.todoCategories == "Today"){
-                     if(subtaskTodoViewModel.isEmpty()){
-                         Todos(todo = todoViewModel.currentDateTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
-                                 todoId -> onNavigate(todoId)
-                         }
-                     }
-                     else{
-                         Todos(todo = todoViewModel.currentDateTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
-                                 todoId -> onNavigate(todoId)
-                         }
-                     }
-                     //This function needs to be moved to fun Todos to make it global for every todo
-                     //Currently this is just visible for Today category todos
-                     TodoDeleteIcon()
-                     Log.i("cat", "Todayyyyyyyyyy")
-                 }
-                 if(selectedCategory?.todoCategories == "All"){
-                     Todos(todo = todoViewModel.allTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
-                             todoId -> onNavigate(todoId)
-                     }
-                     TodoDeleteIcon()
-                     Log.i("cat", "ALLLLLLLLL")
-                 }
-                 if(selectedCategory?.todoCategories == "Scheduled"){
-                     if(todoViewModel.isScheduledEmpty()){
-                         Text(text = "No Scheduled todos")
-                     }
-                     else{
-                         Todos(todo = todoViewModel.scheduledTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks ,todoViewModel){
-                                 todoId -> onNavigate(todoId)
-                         }
-                     }
-                     TodoDeleteIcon()
-                     Log.i("cat", "Scheduled")
-                 }
-                 if(selectedCategory?.todoCategories == "Important"){
-                     if(todoViewModel.isImportantEmpty()){
-                         Text(text = "No Important todos")
-                     }
-                     else{
-                         Todos(todo = todoViewModel.importantTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, viewModel = todoViewModel){
-                                 todoId -> onNavigate(todoId)
-                         }
-                     }
-                     TodoDeleteIcon()
-                     Log.i("cat", "Important")
-                 }
-                 if(selectedCategory?.todoCategories == "Finished"){
-                     if(todoViewModel.isFinishedEmpty()){
-                         Text(text = "No Finished Todos here")
-                     }
-                     Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, viewModel = todoViewModel){
-                             todoId -> onNavigate(todoId)
-                     }
+         {item {
 
-                     Log.i("cat", "Finished")
-                 }
-                 if(selectedCategory?.todoCategories == "Bin"){
-                     Todos(todo = todoViewModel.todosInBin, subtaskTodo = subtaskTodoViewModel.allSubtasks, viewModel = todoViewModel){
-                             todoId -> onNavigate(todoId)
+                     if (selectedCategory?.todoCategories == "Today") {
+                         Log.d("today", "selected")
+                         if (todoViewModel.isEmpty()) {
+                             Text(text = ("No Todos"))
+                         }
+                         if (subtaskTodoViewModel.isEmpty()) {
+                             Todos(
+                                 todo = todoViewModel.currentDateTodos,
+                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                                 todoViewModel
+                             ) { todoId ->
+                                 onNavigate(todoId)
+                             }
+                         } else {
+                             Todos(
+                                 todo = todoViewModel.currentDateTodos,
+                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                                 todoViewModel
+                             ) { todoId ->
+                                 onNavigate(todoId)
+                             }
+                         }
+                         //This function needs to be moved to fun Todos to make it global for every todo
+                         //Currently this is just visible for Today category todos
+                         TodoDeleteIcon()
+                         Log.i("cat", "Todayyyyyyyyyy")
                      }
-                     DeleteIcon()
-                     Log.i("cat", "Bin")
+                     if (selectedCategory?.todoCategories == "All") {
+                         if (todoViewModel.isEmpty()) {
+                             Text(text = ("No Todos"))
+                         }
+                         Todos(
+                             todo = todoViewModel.allTodos,
+                             subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                             todoViewModel
+                         ) { todoId ->
+                             onNavigate(todoId)
+                         }
+                         TodoDeleteIcon()
+                         Log.i("cat", "ALLLLLLLLL")
+                     }
+                     if (selectedCategory?.todoCategories == "Scheduled") {
+                         if (todoViewModel.isScheduledEmpty()) {
+                             Text(text = ("No Todos"))
+                         }
+                         if (todoViewModel.isScheduledEmpty()) {
+                             Text(text = "No Scheduled todos")
+                         } else {
+                             Todos(
+                                 todo = todoViewModel.scheduledTodos,
+                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                                 todoViewModel
+                             ) { todoId ->
+                                 onNavigate(todoId)
+                             }
+                         }
+                         TodoDeleteIcon()
+                         Log.i("cat", "Scheduled")
+                     }
+                     if (selectedCategory?.todoCategories == "Important") {
+                         if (todoViewModel.isImportantEmpty()) {
+                             Text(text = "No Important todos")
+                         } else {
+                             Todos(
+                                 todo = todoViewModel.importantTodos,
+                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                                 viewModel = todoViewModel
+                             ) { todoId ->
+                                 onNavigate(todoId)
+                             }
+                         }
+                         TodoDeleteIcon()
+                         Log.i("cat", "Important")
+                     }
+                     if (selectedCategory?.todoCategories == "Finished") {
+                         if (todoViewModel.isFinishedEmpty()) {
+                             Text(text = "No Finished Todos here")
+                         }
+                         Todos(
+                             todo = todoViewModel.finishedTodos,
+                             subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                             viewModel = todoViewModel
+                         ) { todoId ->
+                             onNavigate(todoId)
+                         }
+
+                         Log.i("cat", "Finished")
+                     }
+                     if (selectedCategory?.todoCategories == "Bin") {
+                         if (todoViewModel.isBinEmpty()) {
+                             Text(text = "No Todos here")
+                         }
+                         Log.d("select", "$todoViewModel.todosInBin")
+                         Todos(
+                             todo = todoViewModel.todosInBin,
+                             subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                             viewModel = todoViewModel
+                         ) { todoId -> onNavigate(todoId) }
+                         DeleteIcon()
+                         Log.i("cat", "Bin")
+                     }
                  }
              }
-        }
-     }
-}
+         }
+
 
 @Composable
 fun TodoDeleteIcon(){
-    val buttonCoroutineScope = rememberCoroutineScope()
-    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
+//    val buttonCoroutineScope = rememberCoroutineScope()
+//    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
+  //  TodoViewModel
+    val todoViewModel: TodoViewModel = viewModel()
     fun clickToDelete(){
         toBeDeletedRows.iterator().forEach { element->
-            buttonCoroutineScope.launch {
 
-                dao.delete(
-                    element
-                )
-            }
+            todoViewModel.sentToBin(element)
         }
     }
     IconButton(onClick = {

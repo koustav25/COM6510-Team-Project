@@ -16,7 +16,7 @@ interface TodoDao {
     @Update
     suspend fun update(todo:Todo)
 
-    @Query("SELECT * FROM "+ Todo.TABLE_NAME+ " WHERE isDeleted = false")
+    @Query("SELECT * FROM "+ Todo.TABLE_NAME + " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>
 
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate and isDeleted = false")

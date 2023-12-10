@@ -10,6 +10,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -41,6 +43,17 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO){
             dao.update(todo)
         }
+    }
+
+    fun sentToBin(id:Long){
+        viewModelScope.launch(Dispatchers.IO){
+            dao.delete(id)
+        }
+    }
+
+    fun isBinEmpty(): Boolean = runBlocking{
+        val todosList = todosInBin.firstOrNull()
+        todosList.isNullOrEmpty()
     }
 
     fun isEmpty(): Boolean = runBlocking{
