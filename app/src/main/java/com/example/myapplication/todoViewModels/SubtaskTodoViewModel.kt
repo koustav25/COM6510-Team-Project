@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import android.util.Log
+
 
 class SubtaskTodoViewModel(app: Application) : AndroidViewModel(app) {
     private val context = getApplication<Application>().applicationContext
@@ -48,6 +52,18 @@ class SubtaskTodoViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO){
             subtaskDao.update(subTaskTodo)
         }
+    }
+
+    private val _todos = MutableLiveData<List<Todo>>()
+    val todos: LiveData<List<Todo>> = _todos
+
+    fun sortTodosByDate() {
+        Log.d("TodoViewModel", "Sorting by date")
+        _todos.value = _todos.value?.sortedBy { it.scheduledDate }
+    }
+    fun sortTodosByTitle() {
+        Log.d("TodoViewModel", "Sorting by title")
+        _todos.value = _todos.value?.sortedBy { it.title }
     }
 
 }

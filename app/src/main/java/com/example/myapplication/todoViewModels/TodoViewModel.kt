@@ -3,7 +3,7 @@ package com.example.myapplication.todoViewModels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.screens.SortOption
+//import com.example.myapplication.screens.SortOption
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
 import kotlinx.coroutines.CompletableDeferred
@@ -17,6 +17,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import android.util.Log
+
 
 class TodoViewModel(app: Application) : AndroidViewModel(app) {
     private val context = getApplication<Application>().applicationContext
@@ -113,11 +117,29 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
         todosList.isNullOrEmpty()
     }
 
-    fun getSortedTodos(sortOption: SortOption): Flow<List<Todo>>{
-        return when (sortOption){
-            SortOption.DATE -> allTodos.map { todos -> todos.sortedBy { it.date } }
-            SortOption.TITLE -> allTodos.map { todos -> todos.sortedBy { it.title } }
+
+    init {
+        loadTodos()
+    }
+
+    private fun loadTodos() {
+        viewModelScope.launch {
+            val todosList = dao.getAllTodos().firstOrNull() ?: emptyList()
+            _todos.postValue(todosList)
         }
     }
+
+    private val _todos = MutableLiveData<List<Todo>>()
+    val todos: LiveData<List<Todo>> = _todos
+
+    fun sortTodosByDate() {
+        Log.d("TodoViewModel", "Sorting by date")
+        _todos.value = _todos.value?.sortedBy { it.scheduledDate }
+    }
+    fun sortTodosByTitle() {
+        Log.d("TodoViewModel", "Sorting by title")
+        _todos.value = _todos.value?.sortedBy { it.title }
+    }
+
 
 }

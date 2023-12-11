@@ -38,6 +38,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -91,6 +94,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
+import androidx.compose.runtime.livedata.observeAsState
 
 
 var toBeDeletedRows = hashSetOf<Long>()
@@ -101,6 +105,30 @@ var toBeDeletedRows = hashSetOf<Long>()
 fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
     val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
+
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Start
+        ){
+            SortingOptions{ sortBy ->
+                when (sortBy){
+                    "date" ->{
+                        todoViewModel.sortTodosByDate()
+                        subtaskTodoViewModel.sortTodosByDate()
+                    }
+                    "title" -> {
+                        todoViewModel.sortTodosByTitle()
+                        subtaskTodoViewModel.sortTodosByTitle()
+                    }
+                }
+            }
+        }
+    }
+
+    
 LazyColumn(
         modifier = Modifier
             .padding(5.dp)
@@ -916,78 +944,63 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
     }
 }
 
-enum class SortOption {
-    DATE, TITLE
-}
 
+//this is segments control
 @Composable
-fun TodoScreen(viewModel: TodoViewModel) {
-
-    var expanded by remember { mutableStateOf(false) }
-    var selectedSortOption by remember { mutableStateOf(SortOption.DATE) }
-    var sortedTodos = viewModel.getSortedTodos(selectedSortOption).collectAsState(initial = emptyList())
-
-    Column(modifier = Modifier.padding(3.dp)) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopEnd){
-            Text(text = "Sort by: ${selectedSortOption.name}" , modifier = Modifier.clickable { expanded = true })
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(text = { "Date" }, onClick = {
-                    selectedSortOption = SortOption.DATE
-                    expanded = false
-                })
-                DropdownMenuItem(text = { "Title" }, onClick = {
-                    selectedSortOption = SortOption.TITLE
-                    expanded = false
-                })
-
-            }
-    }
-        // Rest UI, including the sorted todo list
+fun SortingOptions(onSortSelected: (String) -> Unit) {
+    Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
+        Button(onClick = { onSortSelected("date") }) {
+            Text("Sort by Date")
+        }
+//        Spacer(modifier = Modifier.width(8.dp))
+        Button(onClick = { onSortSelected("title") }) {
+            Text("Sort by Title")
+        }
     }
 }
-
+//this is dropdown menu
+//@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
-//fun TodoList(todos: List<Todo>) {
-//    LazyColumn {
-//        items(todos) { todo -> TodoCard(todo)
-//        }
-//    }
-//}
+//fun SortingDropdownMenu(onSortSelected: (String) -> Unit) {
+//    var expanded by remember { mutableStateOf(false) }
+//    var selectedOption by remember { mutableStateOf("Date") }
 //
-//@Composable
-//fun TodoCard(todo: Todo) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(3.dp),
-//        elevation = 2.dp,
-//        shape = RoundedCornerShape(8.dp)
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
 //    ) {
-//        Column(modifier = Modifier.padding(16.dp)) {
-//            Text(
-//                text = todo.title,
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 18.sp
+//        TextField(
+//            readOnly = true,
+//            value = selectedOption,
+//            onValueChange = { },
+//            label = { Text("Sort by") },
+//            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+//            colors = ExposedDropdownMenuDefaults.textFieldColors()
+//        )
+//        DropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            DropdownMenuItem(
+//                text = { Text("Date") },
+//                onClick = {
+//                    selectedOption = "Date"
+//                    expanded = false
+//                    onSortSelected("date")
+//                }
 //            )
-//            Spacer(modifier = Modifier.height(8.dp))
-//            Text(text = todo.description)
-//            Spacer(modifier = Modifier.height(8.dp))
-//            Row {
-//                IconButton(onClick = { /* TODO: Implement favorite action */ }) {
-//                    Icon(
-//                        imageVector = if (todo.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-//                        contentDescription = "Favorite"
-//                    )
+//            DropdownMenuItem(
+//                text = { Text("Title") },
+//                onClick = {
+//                    selectedOption = "Title"
+//                    expanded = false
+//                    onSortSelected("title")
 //                }
-//                IconButton(onClick = { /* TODO: Implement important action */ }) {
-//                    Icon(
-//                        imageVector = if (todo.isImportant) Icons.Filled.Info else Icons.Outlined.Info,
-//                        contentDescription = "Important"
-//                    )
-//                }
-//                // Additional actions can be added here
-//            }
+//            )
 //        }
 //    }
 //}
+
 
