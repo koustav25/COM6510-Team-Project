@@ -272,7 +272,9 @@ fun DeleteIcon(){
                     element
                 )
             }
+
         }
+
     }
     IconButton(onClick = {
         clickToDelete()
@@ -297,9 +299,6 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
 
     Collections.sort(todosState, myCustomComparator())
 
-//    IconButton(onClick = {Log.d("Extra","onclick is working")} ) {
-//        Text(text = "Hello")
-//    }
     Column {
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
