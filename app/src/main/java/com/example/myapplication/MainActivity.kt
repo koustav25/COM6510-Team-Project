@@ -129,6 +129,7 @@ fun App(){
                     Screen.AddTodoScreen -> AddTodo(templateTodos = TemplateTodosData()) {
                         currentScreen = Screen.TodoScreen
                         currentCategory = TodoCategories("All")
+                        title = "All Todos"
                     }
                     Screen.AddSubtask -> AddSubtaskTodo(todoId = selectedTodoId){
                         currentScreen = Screen.TodoScreen

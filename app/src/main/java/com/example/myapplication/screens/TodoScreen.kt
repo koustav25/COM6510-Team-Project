@@ -108,66 +108,67 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
     val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
 
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.Start
-        ){
-            SortingOptions{ sortBy ->
-                when (sortBy){
-                    "date" ->{
-                        todoViewModel.sortTodosByDate()
-                        subtaskTodoViewModel.sortTodosByDate()
-                    }
-                    "title" -> {
-                        todoViewModel.sortTodosByTitle()
-                        subtaskTodoViewModel.sortTodosByTitle()
+    @Composable
+    fun sortTodos(todoViewModel: TodoViewModel, subtaskTodoViewModel: SubtaskTodoViewModel) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                SortingOptions { sortBy ->
+                    when (sortBy) {
+                        "date" -> {
+                            todoViewModel.sortTodosByDate()
+                            subtaskTodoViewModel.sortTodosByDate()
+                        }
+
+                        "title" -> {
+                            todoViewModel.sortTodosByTitle()
+                            subtaskTodoViewModel.sortTodosByTitle()
+                        }
                     }
                 }
             }
         }
     }
 
-    
+
 LazyColumn(
         modifier = Modifier
             .padding(5.dp)
             .fillMaxSize())
          {item {
 
-                     if (selectedCategory?.todoCategories == "Today") {
-                         Log.d("today", "selected")
-                         if (todoViewModel.isEmpty()) {
-                             Text(text = ("No Todos"))
-                         }
-                         if (subtaskTodoViewModel.isEmpty()) {
-                             Todos(
-                                 todo = todoViewModel.currentDateTodos,
-                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
-                                 todoViewModel
-                             ) { todoId ->
-                                 onNavigate(todoId)
-                             }
-                         } else {
-                             Todos(
-                                 todo = todoViewModel.currentDateTodos,
-                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
-                                 todoViewModel
-                             ) { todoId ->
-                                 onNavigate(todoId)
-                             }
-                         }
-                         //This function needs to be moved to fun Todos to make it global for every todo
-                         //Currently this is just visible for Today category todos
-                         TodoDeleteIcon()
-                         Log.i("cat", "Todayyyyyyyyyy")
+             if(todoViewModel.isEmpty()){
+                 Text("No todos. Please add some todos.")
+             }
+             else {
+                 if (selectedCategory?.todoCategories == "Today") {
+                     if (todoViewModel.isEmpty()) {
+                         Text(text = ("No todos created today"))
                      }
-                     if (selectedCategory?.todoCategories == "All") {
-                         if (todoViewModel.isEmpty()) {
-                             Text(text = ("No Todos"))
+                     else {
+                         sortTodos(todoViewModel, subtaskTodoViewModel)
+                         Todos(
+                             todo = todoViewModel.currentDateTodos,
+                             subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                             todoViewModel
+                         ) { todoId ->
+                             onNavigate(todoId)
                          }
+                         TodoDeleteIcon()
+                     }
+                 }
+
+
+                 if (selectedCategory?.todoCategories == "All") {
+                     if (todoViewModel.isAllEmpty()) {
+                         Text(text = ("No Todos"))
+                     }
+                     else {
+                         sortTodos(todoViewModel, subtaskTodoViewModel)
                          Todos(
                              todo = todoViewModel.allTodos,
                              subtaskTodo = subtaskTodoViewModel.allSubtasks,
@@ -176,45 +177,49 @@ LazyColumn(
                              onNavigate(todoId)
                          }
                          TodoDeleteIcon()
-                         Log.i("cat", "ALLLLLLLLL")
                      }
-                     if (selectedCategory?.todoCategories == "Scheduled") {
-                         if (todoViewModel.isScheduledEmpty()) {
-                             Text(text = ("No Todos"))
-                         }
-                         if (todoViewModel.isScheduledEmpty()) {
-                             Text(text = "No Scheduled todos")
-                         } else {
-                             Todos(
-                                 todo = todoViewModel.scheduledTodos,
-                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
-                                 todoViewModel
-                             ) { todoId ->
-                                 onNavigate(todoId)
-                             }
+                 }
+
+
+                 if (selectedCategory?.todoCategories == "Scheduled") {
+                     if (todoViewModel.isScheduledEmpty()) {
+                         Text(text = ("No scheduled todos"))
+                     }
+                     else {
+                         sortTodos(todoViewModel, subtaskTodoViewModel)
+                         Todos(
+                             todo = todoViewModel.scheduledTodos,
+                             subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                             todoViewModel
+                         ) { todoId ->
+                             onNavigate(todoId)
                          }
                          TodoDeleteIcon()
-                         Log.i("cat", "Scheduled")
                      }
-                     if (selectedCategory?.todoCategories == "Important") {
-                         if (todoViewModel.isImportantEmpty()) {
-                             Text(text = "No Important todos")
-                         } else {
-                             Todos(
-                                 todo = todoViewModel.importantTodos,
-                                 subtaskTodo = subtaskTodoViewModel.allSubtasks,
-                                 viewModel = todoViewModel
-                             ) { todoId ->
-                                 onNavigate(todoId)
-                             }
+                 }
+
+                 if (selectedCategory?.todoCategories == "Important") {
+                     if (todoViewModel.isImportantEmpty()) {
+                         Text(text = "No Important todos")
+                     } else {
+                         sortTodos(todoViewModel, subtaskTodoViewModel)
+                         Todos(
+                             todo = todoViewModel.importantTodos,
+                             subtaskTodo = subtaskTodoViewModel.allSubtasks,
+                             viewModel = todoViewModel
+                         ) { todoId ->
+                             onNavigate(todoId)
                          }
                          TodoDeleteIcon()
-                         Log.i("cat", "Important")
                      }
-                     if (selectedCategory?.todoCategories == "Finished") {
-                         if (todoViewModel.isFinishedEmpty()) {
-                             Text(text = "No Finished Todos here")
-                         }
+                 }
+
+
+                 if (selectedCategory?.todoCategories == "Finished") {
+                     if (todoViewModel.isFinishedEmpty()) {
+                         Text(text = "No Finished Todos")
+                     }
+                     else {
                          Todos(
                              todo = todoViewModel.finishedTodos,
                              subtaskTodo = subtaskTodoViewModel.allSubtasks,
@@ -222,13 +227,15 @@ LazyColumn(
                          ) { todoId ->
                              onNavigate(todoId)
                          }
-
-                         Log.i("cat", "Finished")
                      }
-                     if (selectedCategory?.todoCategories == "Bin") {
-                         if (todoViewModel.isBinEmpty()) {
-                             Text(text = "No Todos here")
-                         }
+                 }
+
+
+                 if (selectedCategory?.todoCategories == "Bin") {
+                     if (todoViewModel.isBinEmpty()) {
+                         Text(text = "No todos in the bin")
+                     }
+                     else {
                          Log.d("select", "$todoViewModel.todosInBin")
                          Todos(
                              todo = todoViewModel.todosInBin,
@@ -236,11 +243,12 @@ LazyColumn(
                              viewModel = todoViewModel
                          ) { todoId -> onNavigate(todoId) }
                          DeleteIcon()
-                         Log.i("cat", "Bin")
                      }
                  }
              }
          }
+     }
+}
 
 
 @Composable
@@ -1008,47 +1016,5 @@ fun SortingOptions(onSortSelected: (String) -> Unit) {
         }
     }
 }
-//this is dropdown menu
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun SortingDropdownMenu(onSortSelected: (String) -> Unit) {
-//    var expanded by remember { mutableStateOf(false) }
-//    var selectedOption by remember { mutableStateOf("Date") }
-//
-//    ExposedDropdownMenuBox(
-//        expanded = expanded,
-//        onExpandedChange = { expanded = !expanded }
-//    ) {
-//        TextField(
-//            readOnly = true,
-//            value = selectedOption,
-//            onValueChange = { },
-//            label = { Text("Sort by") },
-//            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-//            colors = ExposedDropdownMenuDefaults.textFieldColors()
-//        )
-//        DropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false }
-//        ) {
-//            DropdownMenuItem(
-//                text = { Text("Date") },
-//                onClick = {
-//                    selectedOption = "Date"
-//                    expanded = false
-//                    onSortSelected("date")
-//                }
-//            )
-//            DropdownMenuItem(
-//                text = { Text("Title") },
-//                onClick = {
-//                    selectedOption = "Title"
-//                    expanded = false
-//                    onSortSelected("title")
-//                }
-//            )
-//        }
-//    }
-//}
 
 

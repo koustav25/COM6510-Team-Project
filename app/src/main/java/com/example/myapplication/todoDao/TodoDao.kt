@@ -19,6 +19,9 @@ interface TodoDao {
     @Query("SELECT * FROM "+ Todo.TABLE_NAME + " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>
 
+    @Query("SELECT * FROM "+ Todo.TABLE_NAME)
+    fun getAllTableTodos(): Flow<List<Todo>>
+
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate and isDeleted = false")
     fun getTodosByDate(currentDate: String): Flow<List<Todo>>
 
@@ -34,8 +37,8 @@ interface TodoDao {
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isImportant = true and isDeleted = false")
     fun getImportantTodos(): Flow<List<Todo>>
 
-    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE scheduledDate != :currentDate AND scheduledDate IS NOT NULL AND scheduledDate != 'null'  and isDeleted = false")
-    fun getScheduledTodos(currentDate: String): Flow<List<Todo>>
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE scheduledDate IS NOT NULL AND scheduledDate != 'null'  and isDeleted = false")
+    fun getScheduledTodos(): Flow<List<Todo>>
 
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFavorite = true")
     fun getFavoriteTodos(): Flow<List<Todo>>
