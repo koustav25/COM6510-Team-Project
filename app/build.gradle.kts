@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.myapplication"
-        minSdk = 33
+        minSdk = 31
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -71,6 +71,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
+    implementation ("androidx.compose.runtime:runtime-livedata")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

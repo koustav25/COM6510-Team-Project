@@ -27,4 +27,5 @@ interface SubtaskTodoDao {
 
     @Delete
     suspend fun delete(subtaskTodo: SubtaskTodo)
+
 }
