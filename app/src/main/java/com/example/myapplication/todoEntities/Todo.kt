@@ -24,6 +24,8 @@ data class  Todo(
     val isFinished: Boolean,
     val isDeleted: Boolean,
     val priority: Priority,
+    val latitude: String?,
+    val longitude: String?,
     val imageUri: String? = null
 ){
     companion object{

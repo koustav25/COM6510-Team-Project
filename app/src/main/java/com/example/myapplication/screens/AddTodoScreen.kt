@@ -81,6 +81,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TemplateTodos
 import com.example.myapplication.function.Camera
 import com.example.myapplication.function.Gallery
+import com.example.myapplication.function.Location.Location
+import com.example.myapplication.function.Location.Coordinate
 import com.example.myapplication.function.Notification.Notification
 //import com.example.myapplication.function.Location
 import com.example.myapplication.function.Web
@@ -133,6 +135,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     var timeStoreInDatabaseForReminder by remember {mutableStateOf("null")}
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
+    var coordinate by remember {mutableStateOf<Coordinate?>(null)}
 //    var scheduledDate by remember { mutableStateOf<LocalDate?>(null) }
 //    var scheduledTime by remember { mutableStateOf<LocalTime?>(null) }
 
@@ -495,7 +498,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
                                 priority = priorityVal,
-                                imageUri = imageURI
+                                imageUri = imageURI,
+                                longitude = coordinate?.longitude,
+                                latitude = coordinate?.latitude
                             )
                         )
                         Log.i("ids", "Todo inserted successfully: ${insertedTodoId}")
@@ -721,7 +726,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
                                 priority = priorityVal,
-                                imageUri = imageURI
+                                imageUri = imageURI,
+                                longitude = coordinate?.longitude,
+                                latitude = coordinate?.latitude
                             )
                         )
                     }
@@ -837,7 +844,7 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         }
                     }
                     //location
-//                    Location.GetLocation(context)
+                    coordinate = Location.GetLocation(context)
                     //open Gallery
 
                     Gallery.OpenGallery(context) { selectedUri ->

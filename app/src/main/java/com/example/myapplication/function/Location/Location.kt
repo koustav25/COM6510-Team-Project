@@ -19,6 +19,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +35,7 @@ object Location {
 
     @Composable
     fun GetLocation(context: Context):Coordinate? {
-        var coordinate: Coordinate? = null
+        var coordinate by remember { mutableStateOf<Coordinate?>(null) }
         if (!hasPermission(context)){
             requestFineLocationPermission(context)
         }else{
@@ -43,12 +47,12 @@ object Location {
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 IconButton(onClick ={
-                    val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                    val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                     val lat = location?.latitude.toString()
                     val lon = location?.longitude.toString()
                     OpenMaps(lat,lon,context)
                    coordinate = Coordinate(lat,lon)
-                   // Log.d("location","location ${coordinate}")
+                    Log.d("location","location ${coordinate}")
                 }){
                     Column(modifier = Modifier
                         .fillMaxSize()
@@ -63,6 +67,7 @@ object Location {
                 }
             }
         }
+        Log.d("coordinate","location ${coordinate}")
   return coordinate
     }
 

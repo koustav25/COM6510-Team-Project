@@ -93,6 +93,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.myapplication.function.Location.Location
 import com.example.myapplication.function.Notification.Notification
 import kotlinx.coroutines.Dispatchers
 import java.util.Date
@@ -564,6 +565,16 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                 }
                             }
                         }
+                        val latitudeCheck = todoItem.latitude
+                        val longitudeCheck = todoItem.longitude
+                        if (latitudeCheck != null && longitudeCheck!=null) {
+                            Location.OpenMaps(latitudeCheck, longitudeCheck, context)
+                            Log.d("latitude","$latitudeCheck")
+                            Log.d("longitude","$longitudeCheck")
+                        }
+
+
+
 
                         if(isEditing){
                             Row {
