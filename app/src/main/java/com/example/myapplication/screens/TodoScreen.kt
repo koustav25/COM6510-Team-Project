@@ -91,8 +91,13 @@ import androidx.compose.material.icons.filled.CalendarToday
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.function.Location.Location
 import com.example.myapplication.function.Notification.Notification
 import kotlinx.coroutines.Dispatchers
@@ -270,28 +275,87 @@ fun TodoDeleteIcon(){
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteIcon(){
+    val context = LocalContext.current
     val buttonCoroutineScope = rememberCoroutineScope()
     val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
+
+    var isConfirmationDialogVisible by remember { mutableStateOf(false) }
+
+    fun showConfirmationDialog(){
+        isConfirmationDialogVisible = true
+    }
+
+    fun hideConfirmationDialog(){
+        isConfirmationDialogVisible = false
+    }
+
     fun clickToDelete(){
-        toBeDeletedRows.iterator().forEach { element->
+        if(isConfirmationDialogVisible) {
             buttonCoroutineScope.launch {
-
-                dao.deleteFromBin(
-                    element
-                )
+            toBeDeletedRows.iterator().forEach { element ->
+                    dao.deleteFromBin(
+                        element
+                    )
             }
-
+            hideConfirmationDialog()
+            }
+        }else{
+            showConfirmationDialog()
+        }
+    }
+    Column {
+        IconButton(onClick = {
+            clickToDelete()
+        }) {
+            Icon(Icons.Default.Delete, contentDescription = "Delete")
+        }
+        if(isConfirmationDialogVisible){
+            AlertDialog(
+                onDismissRequest = {
+                    hideConfirmationDialog()
+                }
+            ){
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(CornerSize(10.dp)),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "Confirmation",
+                            textAlign = TextAlign.Center)
+                        Divider(
+                            modifier = Modifier.padding(vertical = 5.dp),
+                            thickness = 1.dp,
+                        )
+                        Text(text = "Are you sure you want to delete the todo?",textAlign = TextAlign.Center)
+                        Divider(
+                            modifier = Modifier.padding(vertical = 5.dp),
+                            thickness = 1.dp,
+                        )
+                        Row {
+                            Button(onClick = { hideConfirmationDialog() }) {
+                                Text(text = "Cancel")
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            TextButton(onClick = { clickToDelete() }) {
+                                Text("Delete")
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     }
-    IconButton(onClick = {
-        clickToDelete()
-    }) {
-        Icon(Icons.Default.Delete, contentDescription ="Delete" )
-    }
 }
+
 
 fun myCustomComparator() = Comparator<Todo>{ a, b ->
     when {
