@@ -90,7 +90,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.myapplication.function.Notification.Notification
 import kotlinx.coroutines.Dispatchers
+import java.util.Date
 
 
 var toBeDeletedRows = hashSetOf<Long>()
@@ -288,6 +290,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
 
             var isEditingDate by remember { mutableStateOf(false) }
             var isEditingTime by remember { mutableStateOf(false) }
+            var isEditingDateByReminder by remember { mutableStateOf(false) }
+            var isEditingTimeByReminder by remember { mutableStateOf(false) }
             val editDatePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
             val editTimePickerState = rememberTimePickerState()
             val snackScope = rememberCoroutineScope()
@@ -295,6 +299,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             val snackState = remember{ SnackbarHostState() }
             var editedScheduledDate by remember { mutableStateOf("null") }
             var editedScheduledTime by remember { mutableStateOf("null") }
+            var editedScheduledDateReminder by remember { mutableStateOf("null") }
+            var editedScheduledTimeReminder by remember { mutableStateOf("null") }
 
             val favIcon = if (isFavClicked) {
                 Icons.Filled.Favorite
@@ -534,40 +540,81 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         }
 
                         if(isEditing){
-                            Text("Edit Scheduled Date: ")
-                            IconButton(onClick = {
-                                isEditingDate = !isEditingDate
-                            }) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .size(10.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Filled.DateRange, "Date Picker"
-                                    )
-                                    Text(text = "Date", fontSize = 8.sp)
+                            Row {
+                                Text("Edit Scheduled and Reminder Date: ")
+                            }
+                            Row {
+                                IconButton(onClick = {
+                                    isEditingDate = !isEditingDate
+                                }) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .size(10.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.DateRange, "Date Picker"
+                                        )
+                                        Text(text = "Date", fontSize = 8.sp)
+                                    }
+                                }
+                                IconButton(onClick = {
+                                    isEditingDateByReminder = !isEditingDateByReminder
+                                }) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .size(10.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.DateRange, "Date Picker"
+                                        )
+                                        Text(text = "Reminder", fontSize = 8.sp)
+                                    }
                                 }
                             }
+                            Row {
+                                //Time Picker
+                                Text("Edit Scheduled and Reminder Time: ")
 
-                            //Time Picker
-                            Text("Edit Scheduled Time: ")
-                            IconButton(onClick = {
-                                isEditingTime = !isEditingTime
-                            }) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .size(10.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Info, "Time Picker"
-                                    )
-                                    Text(text = "Time", fontSize = 8.sp)
+                            }
+                            Row {
+                                IconButton(onClick = {
+                                    isEditingTime = !isEditingTime
+                                }) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .size(10.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Info, "Time Picker"
+                                        )
+                                        Text(text = "Time", fontSize = 8.sp)
+                                    }
+                                }
+
+                                IconButton(onClick = {
+                                    isEditingTimeByReminder = !isEditingTimeByReminder
+                                }) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .size(10.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Info, "Time Picker"
+                                        )
+                                        Text(text = "Reminder", fontSize = 8.sp)
+                                    }
                                 }
                             }
 
@@ -623,6 +670,58 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                 }
                             }
 
+                            if (isEditingDateByReminder) {
+                                DatePickerDialog(
+                                    onDismissRequest = { isEditingDateByReminder = false },
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            val selectedDateMillis = editDatePickerState.selectedDateMillis
+                                            if(selectedDateMillis!=null){
+                                                editedScheduledDateReminder = handleSelectedDate(selectedDateMillis)
+                                            }
+                                            isEditingDateByReminder = false
+                                            snackScope.launch{
+                                                snackState.showSnackbar(
+                                                    "Selected Date: ${editDatePickerState.selectedDateMillis}"
+                                                )
+                                            }
+                                        }
+                                        ) {
+                                            Text(text = "Ok")
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = { isEditingDateByReminder = false }
+                                        ) {
+                                            Text(text = "Cancel")
+                                        }
+                                    }
+                                ) {
+                                    DatePicker(
+                                        state = editDatePickerState,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
+                            if (isEditingTimeByReminder) {
+                                TimePickerDialog(
+                                    onCancel = { isEditingTimeByReminder = false },
+                                    onConfirm = {
+                                        val cal = Calendar.getInstance()
+                                        cal.set(Calendar.HOUR_OF_DAY, editTimePickerState.hour)
+                                        cal.set(Calendar.MINUTE, editTimePickerState.minute)
+                                        cal.isLenient = false
+                                        editedScheduledTimeReminder = editTimeFormatter.format(cal.time)
+                                        snackScope.launch {
+                                            snackState.showSnackbar("Entered time: ${editTimeFormatter.format(cal.time)}")
+                                        }
+                                        isEditingTimeByReminder = false
+                                    }) {
+                                    TimePicker(state = editTimePickerState)
+                                }
+                            }
+
                         }
 
 
@@ -648,6 +747,26 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
 
                                     }
                                 })
+                            Text(
+                                    text = buildAnnotatedString {
+                                        withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
+                                            if (todoItem.reminderDate == "null") {
+                                                append("Reminder Date: Not set")
+                                            } else {
+                                                append("Reminder Date: " + todoItem.reminderDate)
+                                            }
+                                        }
+                                    })
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
+                                        if (todoItem.reminderTime == "null") {
+                                            append("Reminder Date: Not set")
+                                        } else {
+                                            append("Reminder Date: " + todoItem.reminderTime)
+                                        }
+                                    }
+                                })
                         }
 
 
@@ -659,8 +778,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                         if (subtaskTodoState.isEmpty()) {
                             Text(text = "No subtasks")
                         } else {
-
-
+                            var editedSubtaskScheduledDateReminder by remember { mutableStateOf("null") }
+                            var editedSubtaskScheduledTimeReminder by remember { mutableStateOf("null") }
+                            var subTaskTitle by remember{mutableStateOf("")}
                             subtaskTodoState.filter { it.id == todoItem.id }
                                 .forEach { subtaskItem ->
                                     var subtaskEditing by remember { mutableStateOf(subtaskItem.subtaskTitle) }
@@ -675,6 +795,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
 
                                     var isEditingSubtaskDate by remember { mutableStateOf(false) }
                                     var isEditingSubtaskTime by remember { mutableStateOf(false) }
+                                    var isEditingSubtaskDateReminder by remember { mutableStateOf(false) }
+                                    var isEditingSubtaskTimeReminder by remember { mutableStateOf(false) }
                                     val editSubtaskDatePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
                                     val editSubtaskTimePickerState = rememberTimePickerState()
                                     val subtaskSnackScope = rememberCoroutineScope()
@@ -712,6 +834,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                     value = subtaskEditing,
                                                     onValueChange = {
                                                         subtaskEditing = it
+                                                        subTaskTitle = subtaskEditing
+
                                                     }
                                                 )
                                                 Row {
@@ -803,6 +927,113 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                             TimePicker(state = editSubtaskTimePickerState)
                                                         }
                                                     }
+                                                    IconButton(onClick = {
+                                                        isEditingSubtaskDateReminder = !isEditingSubtaskDateReminder
+                                                    }) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .size(10.dp),
+                                                            verticalArrangement = Arrangement.Center,
+                                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Filled.DateRange, "Date Picker"
+                                                            )
+                                                            Text(text = "Remainder Date", fontSize = 5.sp)
+                                                        }
+                                                    }
+
+                                                    //Time Picker
+                                                    IconButton(onClick = {
+                                                        isEditingSubtaskTimeReminder = !isEditingSubtaskTimeReminder
+                                                    }) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .size(10.dp),
+                                                            verticalArrangement = Arrangement.Center,
+                                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Outlined.Info, "Time Picker"
+                                                            )
+                                                            Text(text = "Remainder Time", fontSize = 8.sp)
+                                                        }
+                                                    }
+
+                                                    if (isEditingSubtaskDateReminder) {
+                                                        DatePickerDialog(
+                                                            onDismissRequest = { isEditingSubtaskDateReminder = false },
+                                                            confirmButton = {
+                                                                TextButton(onClick = {
+                                                                    val selectedDateMillis = editSubtaskDatePickerState.selectedDateMillis
+                                                                    if(selectedDateMillis!=null){
+                                                                        editedSubtaskScheduledDateReminder = handleSelectedDate(selectedDateMillis)
+                                                                        subtaskItem.subtaskReminderDate = editedSubtaskScheduledDateReminder
+                                                                    }
+                                                                    isEditingSubtaskDateReminder = false
+                                                                    subtaskSnackScope.launch{
+                                                                        subtaskSnackState.showSnackbar(
+                                                                            "Selected Date: ${editSubtaskDatePickerState.selectedDateMillis}"
+                                                                        )
+                                                                    }
+                                                                }
+                                                                ) {
+                                                                    Text(text = "Ok")
+                                                                }
+                                                            },
+                                                            dismissButton = {
+                                                                TextButton(
+                                                                    onClick = { isEditingSubtaskDateReminder = false }
+                                                                ) {
+                                                                    Text(text = "Cancel")
+                                                                }
+                                                            }
+                                                        ) {
+                                                            DatePicker(
+                                                                state = editSubtaskDatePickerState,
+                                                                modifier = Modifier.padding(8.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                    if (isEditingSubtaskTimeReminder) {
+                                                        TimePickerDialog(
+                                                            onCancel = {
+                                                                isEditingSubtaskTimeReminder = false
+                                                            },
+                                                            onConfirm = {
+                                                                val cal = Calendar.getInstance()
+                                                                cal.set(
+                                                                    Calendar.HOUR_OF_DAY,
+                                                                    editSubtaskTimePickerState.hour
+                                                                )
+                                                                cal.set(
+                                                                    Calendar.MINUTE,
+                                                                    editSubtaskTimePickerState.minute
+                                                                )
+                                                                cal.isLenient = false
+                                                                editedSubtaskScheduledTimeReminder =
+                                                                    editSubtaskTimeFormatter.format(
+                                                                        cal.time
+                                                                    )
+                                                                subtaskItem.subtaskReminderTime =
+                                                                    editedSubtaskScheduledTimeReminder
+                                                                subtaskSnackScope.launch {
+                                                                    subtaskSnackState.showSnackbar(
+                                                                        "Entered time: ${
+                                                                            editSubtaskTimeFormatter.format(
+                                                                                cal.time
+                                                                            )
+                                                                        }"
+                                                                    )
+                                                                }
+                                                                isEditingSubtaskTimeReminder = false
+                                                            }) {
+                                                            TimePicker(state = editSubtaskTimePickerState)
+                                                        }
+                                                    }
+
                                                 }
                                             }
                                         }else{
@@ -836,6 +1067,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                         )
                                     }
                                 }
+                            if(editedSubtaskScheduledDateReminder != "null" && editedSubtaskScheduledTimeReminder!= "null")
+                                Notification.SetNotification(editedSubtaskScheduledDateReminder+ " "+convertTimeTo24HourFormat(editedSubtaskScheduledTimeReminder) ,context, "Notification for todo $subTaskTitle")
                         }
 
                         //Divider
@@ -887,11 +1120,19 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                 description = editingDescription,
                                                 priority = selectedPriority,
                                                 scheduledDate = editedScheduledDate,
-                                                scheduledTime = editedScheduledTime
+                                                scheduledTime = editedScheduledTime,
+                                                reminderDate =  editedScheduledDateReminder,
+                                                reminderTime = editedScheduledTimeReminder
+
                                             )
                                         )
+
+                                        if(editedScheduledDate != "null" && editedScheduledTime!= "null")
+                                            Notification.SetNotification(editedScheduledDate+ " "+convertTimeTo24HourFormat(editedScheduledTime) ,context, "Notification for todo $editingTitle")
                                         subtask = true
                                         isEditing = false
+
+
                                     }
                                 )
                             }else {
@@ -911,9 +1152,30 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                     }
                 }
             }
+            if(editedScheduledDateReminder != "null" && editedScheduledTimeReminder!= "null")
+                Notification.SetNotification(editedScheduledDateReminder+ " "+convertTimeTo24HourFormat(editedScheduledTimeReminder) ,context, "Notification for todo $editingTitle")
         }
 
     }
+}
+
+fun convertTimeTo24HourFormat(time: String?): String {
+    var modifiedTime = time
+    if(time == "null"){
+        modifiedTime = "00:00 am"
+    }
+    val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+    try {
+        val date: Date = inputFormat.parse(modifiedTime)
+        return outputFormat.format(date)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // Handle parsing exception
+        return ""
+    }
+    return ""
 }
 
 enum class SortOption {

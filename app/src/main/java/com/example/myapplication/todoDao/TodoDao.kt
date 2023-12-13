@@ -19,6 +19,9 @@ interface TodoDao {
     @Query("SELECT * FROM "+ Todo.TABLE_NAME + " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>
 
+    @Query("SELECT * FROM "+ Todo.TABLE_NAME + " WHERE reminderDate >= CURRENT_DATE ORDER BY ABS(reminderDate - CURRENT_DATE) LIMIT 1")
+    fun getLatestDate():Flow<List<Todo>>
+
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE date =:currentDate and isDeleted = false")
     fun getTodosByDate(currentDate: String): Flow<List<Todo>>
 

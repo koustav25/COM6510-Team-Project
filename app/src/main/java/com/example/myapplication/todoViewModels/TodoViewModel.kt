@@ -29,6 +29,7 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val favoriteTodos: Flow<List<Todo>> = dao.getFavoriteTodos()
     val todosInBin: Flow<List<Todo>> = dao.getDeletedTodos()
     val finishedTodos: Flow<List<Todo>> = dao.getFinishedTodos()
+    val latestDate: Flow<List<Todo>> = dao.getLatestDate()
 
     suspend fun addTodo(todo: Todo): Long {
         val deferred = CompletableDeferred<Long>()

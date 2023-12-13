@@ -1,5 +1,6 @@
 package com.example.myapplication.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.function.Notification.Notification
 import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import kotlinx.coroutines.launch
@@ -48,6 +50,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,12 +66,16 @@ fun AddSubtaskTodo(todoId: Long, onNavigate: () -> Unit) {
     val timePickerState = rememberTimePickerState()
     var showDialogForDate by rememberSaveable { mutableStateOf(false) }
     var showDialogForTime by rememberSaveable { mutableStateOf(false) }
+    var showDialogForDateReminder by rememberSaveable { mutableStateOf(false) }
+    var showDialogForTimeReminder by rememberSaveable { mutableStateOf(false) }
     val snackScope = rememberCoroutineScope()
     val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember{ SnackbarHostState() }
 
     var dateStoreInDatabase by remember { mutableStateOf("null") }
     var timeStoreInDatabase by remember { mutableStateOf("null") }
+    var dateStoreInDatabaseForReminder by remember { mutableStateOf("null") }
+    var timeStoreInDatabaseForReminder by remember { mutableStateOf("null") }
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
 
@@ -131,18 +138,40 @@ fun AddSubtaskTodo(todoId: Long, onNavigate: () -> Unit) {
                             subtaskTitle = title,
                             subtaskScheduledDate = dateStoreInDatabase,
                             subtaskScheduledTime = timeStoreInDatabase,
+                            subtaskReminderDate =  dateStoreInDatabaseForReminder,
+                            subtaskReminderTime = timeStoreInDatabaseForReminder,
                             isSubtaskCompleted = isFinished
                         )
                     )
                 }
             }
+            fun convertTimeTo24HourFormat(time: String?): String {
+                var modifiedTime = time
+                if(time == "null"){
+                    modifiedTime = "00:00 am"
+                }
+                val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
+                try {
+                        Log.d("Subtask","$time")
+                        val date: Date = inputFormat.parse(modifiedTime)
+                        return outputFormat.format(date)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    // Handle parsing exception
+                    return ""
+                }
+                return "00:00"
+            }
             // Add Todo Button
             Button(
                 onClick = {
                     if (title.isNotBlank()) {
                         insertOnClick()
                         getToast(context, "Data added successfully")
+                        if(dateStoreInDatabaseForReminder!= "null")
+                        Notification.SetNotification(dateStoreInDatabaseForReminder+ " "+convertTimeTo24HourFormat(timeStoreInDatabaseForReminder) ,context, "Notification for subtask $title")
                         onNavigate()
                     } else {
                         getToast(context, "Title cannot be empty")
@@ -238,6 +267,94 @@ fun AddSubtaskTodo(todoId: Long, onNavigate: () -> Unit) {
                 }
             }
             Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Text("Reminder Notification")
+
+            Row {
+                //Date Picker
+                IconButton(onClick = { showDialogForDateReminder = !showDialogForDateReminder }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .size(10.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Filled.DateRange, "Date Picker"
+                        )
+                        Text(text = "Date", fontSize = 8.sp)
+                    }
+                }
+
+                //Time Picker
+                IconButton(onClick = { showDialogForTimeReminder = !showDialogForTimeReminder }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .size(10.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Outlined.Info, "Time Picker"
+                        )
+                        Text(text = "Time", fontSize = 8.sp)
+                    }
+                }
+
+            }
+            if (showDialogForDateReminder) {
+                DatePickerDialog(
+                    onDismissRequest = { showDialogForDateReminder = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            val selectedDateMillis = datePickerState.selectedDateMillis
+                            if(selectedDateMillis!=null){
+                                dateStoreInDatabaseForReminder = handleSelectedDate(selectedDateMillis)
+                            }
+                            showDialogForDateReminder = false
+                            snackScope.launch{
+                                snackState.showSnackbar(
+                                    "Selected Date: ${datePickerState.selectedDateMillis}"
+                                )
+                            }
+                        }
+                        ) {
+                            Text(text = "Ok")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showDialogForDateReminder = false }
+                        ) {
+                            Text(text = "Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(
+                        state = datePickerState,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+            if (showDialogForTimeReminder) {
+                TimePickerDialog(
+                    onCancel = { showDialogForTimeReminder = false },
+                    onConfirm = {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                        cal.set(Calendar.MINUTE, timePickerState.minute)
+                        cal.isLenient = false
+                        timeStoreInDatabaseForReminder = timeFormatter.format(cal.time)
+                        snackScope.launch {
+                            snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
+                        }
+                        showDialogForTimeReminder = false
+                    }) {
+                    TimePicker(state = timePickerState)
+                }
+            }
         }
     }
 }

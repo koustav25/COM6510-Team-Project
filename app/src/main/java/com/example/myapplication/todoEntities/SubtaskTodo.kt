@@ -18,6 +18,8 @@ data class SubtaskTodo(
     var subtaskTitle: String,
     var subtaskScheduledDate: String,
     var subtaskScheduledTime: String,
+    var subtaskReminderDate: String,
+    var subtaskReminderTime: String,
     val isSubtaskCompleted: Boolean
 ){
     companion object{

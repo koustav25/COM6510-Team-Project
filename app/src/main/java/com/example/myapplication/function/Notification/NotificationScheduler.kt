@@ -31,7 +31,7 @@ class NotificationScheduler {
             // Set the alarm to trigger at the specified date
             alarmManager.set(AlarmManager.RTC, date.time, pendingIntent)
 
-            Toast.makeText(context, "Notification scheduled for $date", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
 
         fun createNotificationChannel(context: Context) {
