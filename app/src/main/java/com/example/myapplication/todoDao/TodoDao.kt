@@ -40,7 +40,7 @@ interface TodoDao {
     @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE scheduledDate IS NOT NULL AND scheduledDate != 'null'  and isDeleted = false")
     fun getScheduledTodos(): Flow<List<Todo>>
 
-    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFavorite = true")
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFavorite = true AND isDeleted = false")
     fun getFavoriteTodos(): Flow<List<Todo>>
 
     @Query("Update "+Todo.TABLE_NAME+ " set isFavorite = :isFavourite where id = :id")
@@ -49,7 +49,7 @@ interface TodoDao {
     @Query("Update "+Todo.TABLE_NAME+ " set isImportant = :isImportant where id = :id")
     suspend fun setImportant(id:Long, isImportant: Boolean)
 
-    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFinished = true")
+    @Query("SELECT * FROM "+Todo.TABLE_NAME+ " WHERE isFinished = true AND isDeleted = false")
     fun getFinishedTodos(): Flow<List<Todo>>
 
     @Query("Update "+Todo.TABLE_NAME+ " set isFinished = :isFinished where id = :id")

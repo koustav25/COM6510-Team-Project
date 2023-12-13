@@ -70,6 +70,7 @@ fun App(){
     var currentScreen by remember { mutableStateOf(Screen.Home) }
     var selectedScreenID by remember { mutableStateOf(ScreenID.HOME) }
     var title by remember { mutableStateOf("Home") }
+
     fun updatedSelectedID(id: Int, newTitle: String) {
         selectedScreenID = id
         title = newTitle
@@ -130,6 +131,7 @@ fun App(){
                         currentScreen = Screen.TodoScreen
                         currentCategory = TodoCategories("All")
                         title = "All Todos"
+                        selectedScreenID = ScreenID.HOME
                     }
                     Screen.AddSubtask -> AddSubtaskTodo(todoId = selectedTodoId){
                         currentScreen = Screen.TodoScreen
@@ -140,8 +142,11 @@ fun App(){
                         Settings()
                     }
                     Screen.Favorites -> {
-                        Favorites(){
+                        Favorites(){todoId ->
                             currentScreen = Screen.AddSubtask
+                            title = "Add subtask"
+                            selectedTodoId = todoId
+                            selectedScreenID = ScreenID.HOME
                         }
                     }
                 }

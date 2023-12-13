@@ -146,7 +146,7 @@ LazyColumn(
              }
              else {
                  if (selectedCategory?.todoCategories == "Today") {
-                     if (todoViewModel.isEmpty()) {
+                     if (todoViewModel.isTodayEmpty()) {
                          Text(text = ("No todos created today"))
                      }
                      else {

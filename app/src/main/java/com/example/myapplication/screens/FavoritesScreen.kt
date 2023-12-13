@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.screens.TodoDeleteIcon
 import com.example.myapplication.screens.Todos
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
@@ -26,6 +27,7 @@ fun Favorites(onNavigate: (Long) -> Unit){
                 Todos(todo = todoViewModel.favoriteTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
                         todoId -> onNavigate(todoId)
                 }
+                TodoDeleteIcon()
             }
         }
     }
