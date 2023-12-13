@@ -527,127 +527,127 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     Text("Add Todo")
                 }
 
-                Row {
-                    IconButton(
-                        onClick = {
-                            isFavClicked = !isFavClicked
-                            isFav = !isFav
-                        }
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .size(10.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-
-                        ) {
-                            Icon(favIcon, contentDescription = "Favorite")
-                            Text(text = "Fav", fontSize = 8.sp)
-                        }
-                    }
-                    IconButton(
-                        onClick = {
-                            isImportantClicked = !isImportantClicked
-                            isImp = !isImp
-                        }
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .size(10.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-
-                        ) {
-                            Icon(impIcon, contentDescription = "Important")
-                            Text(text = "Imp", fontSize = 8.sp)
-                        }
-                    }
-                    //Date Picker
-                    IconButton(onClick = { showDialogForDate = !showDialogForDate }) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .size(10.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Filled.DateRange, "Date Picker"
-                            )
-                            Text(text = "Date", fontSize = 8.sp)
-                        }
-                    }
-
-                    //Time Picker
-                    IconButton(onClick = { showDialogForTime = !showDialogForTime }) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .size(10.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Outlined.Info, "Time Picker"
-                            )
-                            Text(text = "Time", fontSize = 8.sp)
-                        }
-                    }
-
-                }
-                if (showDialogForDate) {
-                    DatePickerDialog(
-                        onDismissRequest = { showDialogForDate = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                val selectedDateMillis = datePickerState.selectedDateMillis
-                                if(selectedDateMillis!=null){
-                                    dateStoreInDatabase = handleSelectedDate(selectedDateMillis)
-                                }
-                                showDialogForDate = false
-                                snackScope.launch{
-                                    snackState.showSnackbar(
-                                        "Selected Date: ${datePickerState.selectedDateMillis}"
-                                    )
-                                }
-                            }
-                            ) {
-                                Text(text = "Ok")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { showDialogForDate = false }
-                            ) {
-                                Text(text = "Cancel")
-                            }
-                        }
-                    ) {
-                        DatePicker(
-                            state = datePickerState,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-                }
-                if (showDialogForTime) {
-                    TimePickerDialog(
-                        onCancel = { showDialogForTime = false },
-                        onConfirm = {
-                            val cal = Calendar.getInstance()
-                            cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                            cal.set(Calendar.MINUTE, timePickerState.minute)
-                            cal.isLenient = false
-                            timeStoreInDatabase = timeFormatter.format(cal.time)
-                            snackScope.launch {
-                                snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
-                            }
-                            showDialogForTime = false
-                        }) {
-                        TimePicker(state = timePickerState)
-                    }
-                }
+//                Row {
+//                    IconButton(
+//                        onClick = {
+//                            isFavClicked = !isFavClicked
+//                            isFav = !isFav
+//                        }
+//                    ) {
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .size(10.dp),
+//                            verticalArrangement = Arrangement.Center,
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//
+//                        ) {
+//                            Icon(favIcon, contentDescription = "Favorite")
+//                            Text(text = "Fav", fontSize = 8.sp)
+//                        }
+//                    }
+//                    IconButton(
+//                        onClick = {
+//                            isImportantClicked = !isImportantClicked
+//                            isImp = !isImp
+//                        }
+//                    ) {
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .size(10.dp),
+//                            verticalArrangement = Arrangement.Center,
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//
+//                        ) {
+//                            Icon(impIcon, contentDescription = "Important")
+//                            Text(text = "Imp", fontSize = 8.sp)
+//                        }
+//                    }
+//                    //Date Picker
+//                    IconButton(onClick = { showDialogForDate = !showDialogForDate }) {
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .size(10.dp),
+//                            verticalArrangement = Arrangement.Center,
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//                        ) {
+//                            Icon(
+//                                Icons.Filled.DateRange, "Date Picker"
+//                            )
+//                            Text(text = "Date", fontSize = 8.sp)
+//                        }
+//                    }
+//
+//                    //Time Picker
+//                    IconButton(onClick = { showDialogForTime = !showDialogForTime }) {
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .size(10.dp),
+//                            verticalArrangement = Arrangement.Center,
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//                        ) {
+//                            Icon(
+//                                Icons.Outlined.Info, "Time Picker"
+//                            )
+//                            Text(text = "Time", fontSize = 8.sp)
+//                        }
+//                    }
+//
+//                }
+//                if (showDialogForDate) {
+//                    DatePickerDialog(
+//                        onDismissRequest = { showDialogForDate = false },
+//                        confirmButton = {
+//                            TextButton(onClick = {
+//                                val selectedDateMillis = datePickerState.selectedDateMillis
+//                                if(selectedDateMillis!=null){
+//                                    dateStoreInDatabase = handleSelectedDate(selectedDateMillis)
+//                                }
+//                                showDialogForDate = false
+//                                snackScope.launch{
+//                                    snackState.showSnackbar(
+//                                        "Selected Date: ${datePickerState.selectedDateMillis}"
+//                                    )
+//                                }
+//                            }
+//                            ) {
+//                                Text(text = "Ok")
+//                            }
+//                        },
+//                        dismissButton = {
+//                            TextButton(
+//                                onClick = { showDialogForDate = false }
+//                            ) {
+//                                Text(text = "Cancel")
+//                            }
+//                        }
+//                    ) {
+//                        DatePicker(
+//                            state = datePickerState,
+//                            modifier = Modifier.padding(8.dp)
+//                        )
+//                    }
+//                }
+//                if (showDialogForTime) {
+//                    TimePickerDialog(
+//                        onCancel = { showDialogForTime = false },
+//                        onConfirm = {
+//                            val cal = Calendar.getInstance()
+//                            cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+//                            cal.set(Calendar.MINUTE, timePickerState.minute)
+//                            cal.isLenient = false
+//                            timeStoreInDatabase = timeFormatter.format(cal.time)
+//                            snackScope.launch {
+//                                snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
+//                            }
+//                            showDialogForTime = false
+//                        }) {
+//                        TimePicker(state = timePickerState)
+//                    }
+//                }
 
 
 

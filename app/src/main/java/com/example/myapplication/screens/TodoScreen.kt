@@ -330,8 +330,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
             val snackScope = rememberCoroutineScope()
             val editTimeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
             val snackState = remember{ SnackbarHostState() }
-            var editedScheduledDate by remember { mutableStateOf("null") }
-            var editedScheduledTime by remember { mutableStateOf("null") }
+            var editedScheduledDate by remember { mutableStateOf(todoItem.scheduledDate) }
+            var editedScheduledTime by remember { mutableStateOf(todoItem.scheduledTime) }
 
             val favIcon = if (isFavClicked) {
                 Icons.Filled.Favorite
