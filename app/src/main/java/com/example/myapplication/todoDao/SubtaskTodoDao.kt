@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.myapplication.todoEntities.SubtaskTodo
-import com.example.myapplication.todoEntities.Todo
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -33,13 +33,10 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,31 +73,23 @@ import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.myapplication.ui.theme.Priority
 import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Collections
 import java.util.Locale
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CalendarToday
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.function.Location.Location
 import com.example.myapplication.function.Notification.Notification
-import kotlinx.coroutines.Dispatchers
 import java.util.Date
 
 

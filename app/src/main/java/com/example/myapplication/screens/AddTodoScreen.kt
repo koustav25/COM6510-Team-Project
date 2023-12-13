@@ -21,11 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
@@ -64,7 +62,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -76,7 +73,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TemplateTodos
 import com.example.myapplication.function.Camera
@@ -84,17 +80,13 @@ import com.example.myapplication.function.Gallery
 import com.example.myapplication.function.Location.Location
 import com.example.myapplication.function.Location.Coordinate
 import com.example.myapplication.function.Notification.Notification
-//import com.example.myapplication.function.Location
 import com.example.myapplication.function.Web
-import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 import com.example.myapplication.todoViewModels.SubtaskTodoViewModel
 import com.example.myapplication.todoViewModels.TodoViewModel
 import com.example.myapplication.ui.theme.Priority
 import com.example.myapplication.ui.theme.PriorityTodosData
-//import com.example.myapplication.ui.theme.Priority
-//import com.example.myapplication.ui.theme.PriorityTodosData
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
