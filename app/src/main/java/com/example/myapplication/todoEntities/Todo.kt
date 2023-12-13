@@ -19,8 +19,6 @@ data class  Todo(
     val isImportant: Boolean,
     val scheduledDate: String,
     val scheduledTime: String,
-    val reminderDate: String?,
-    val reminderTime: String?,
     val isFinished: Boolean,
     val isDeleted: Boolean,
     val priority: Priority,

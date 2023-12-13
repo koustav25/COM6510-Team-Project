@@ -124,15 +124,11 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
     val timePickerState = rememberTimePickerState()
     var showDialogForDate by rememberSaveable { mutableStateOf(false) }
     var showDialogForTime by rememberSaveable { mutableStateOf(false) }
-    var showDialogForReminderDate by rememberSaveable { mutableStateOf(false) }
-    var showDialogForReminderTime by rememberSaveable { mutableStateOf(false) }
     val snackScope = rememberCoroutineScope()
     val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember{ SnackbarHostState() }
     var dateStoreInDatabase by remember { mutableStateOf("null") }
-    var dateStoreInDatabaseForReminder by remember {mutableStateOf("null")}
     var timeStoreInDatabase by remember { mutableStateOf("null") }
-    var timeStoreInDatabaseForReminder by remember {mutableStateOf("null")}
     var isFinished by remember { mutableStateOf(false) }
     var isDeleted by remember { mutableStateOf(false) }
     var coordinate by remember {mutableStateOf<Coordinate?>(null)}
@@ -493,8 +489,6 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 isImportant = isImp,
                                 scheduledDate = dateStoreInDatabase,
                                 scheduledTime = timeStoreInDatabase,
-                                reminderDate = dateStoreInDatabaseForReminder,
-                                reminderTime = timeStoreInDatabaseForReminder,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
                                 priority = priorityVal,
@@ -511,8 +505,6 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                     subtaskTitle = subtask.subtaskTitle,
                                     subtaskScheduledDate = subtask.subtaskScheduledDate,
                                     subtaskScheduledTime = subtask.subtaskScheduledTime,
-                                    subtaskReminderDate =  dateStoreInDatabaseForReminder,
-                                    subtaskReminderTime = timeStoreInDatabaseForReminder,
                                     isSubtaskCompleted = subtask.isSubtaskCompleted,
                                 )
                             )
@@ -721,8 +713,6 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 isImportant = isImp,
                                 scheduledDate = dateStoreInDatabase,
                                 scheduledTime = timeStoreInDatabase,
-                                reminderDate = dateStoreInDatabaseForReminder,
-                                reminderTime = timeStoreInDatabaseForReminder,
                                 isFinished = isFinished,
                                 isDeleted = isDeleted,
                                 priority = priorityVal,
@@ -739,9 +729,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                     onClick = {
                         if (title.isNotBlank()) {
                             insertTodo()
-                            Log.d("time","${dateStoreInDatabaseForReminder+ " "+convertTimeTo24HourFormat(timeStoreInDatabaseForReminder)}")
-                            if(dateStoreInDatabaseForReminder != "null")
-                                Notification.SetNotification(dateStoreInDatabaseForReminder+ " "+convertTimeTo24HourFormat(timeStoreInDatabaseForReminder) ,context, "Notification for todo $title")
+                            Log.d("time","${dateStoreInDatabase+ " "+convertTimeTo24HourFormat(timeStoreInDatabase)}")
+                            if(dateStoreInDatabase != "null")
+                                Notification.SetNotification(dateStoreInDatabase+ " "+convertTimeTo24HourFormat(timeStoreInDatabase) ,context, "Notification for todo $title")
                             getToast(context, "Todo added!")
                             onNavigate()
                         } else {
@@ -909,99 +899,9 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                         TimePicker(state = timePickerState)
                     }
                 }
-
-                if (showDialogForReminderDate) {
-                    Log.d("inside Reminder", "$showDialogForReminderDate")
-                    DatePickerDialog(
-                        onDismissRequest = { showDialogForReminderDate = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                val selectedDateMillis = datePickerState.selectedDateMillis
-                                if (selectedDateMillis != null) {
-                                    dateStoreInDatabaseForReminder = handleSelectedDate(selectedDateMillis)
-                                }
-                                showDialogForReminderDate = false
-                                snackScope.launch {
-                                    snackState.showSnackbar(
-                                        "Selected Date: ${datePickerState.selectedDateMillis}"
-                                    )
-                                }
-                            }
-                            ) {
-                                Text(text = "Ok")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { showDialogForReminderDate = false }
-                            ) {
-                                Text(text = "Cancel")
-                            }
-                        }
-                    ) {
-                        DatePicker(
-                            state = datePickerState,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-                }
-
-                if (showDialogForReminderTime) {
-                    TimePickerDialog(
-                        onCancel = { showDialogForReminderTime = false },
-                        onConfirm = {
-                            val cal = Calendar.getInstance()
-                            cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                            cal.set(Calendar.MINUTE, timePickerState.minute)
-                            cal.isLenient = false
-                            timeStoreInDatabaseForReminder = timeFormatter.format(cal.time)
-                            snackScope.launch {
-                                snackState.showSnackbar("Entered time: ${timeFormatter.format(cal.time)}")
-                            }
-                            showDialogForReminderTime = false
-                        }) {
-                        TimePicker(state = timePickerState)
-                    }
-                }
-
                 //Horizontal Divider line
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                Row {
-                    Text("Remainder Notifications")
-                }
-                Row {
-                    // Remainder
-                    IconButton(onClick = { showDialogForReminderDate = true }) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .size(10.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Filled.DateRange, "Date Picker"
-                            )
-                            Text(text = "Date", fontSize = 8.sp)
-                            Log.d("Reminder click", "Test")
-                        }
-                    }
 
-                    IconButton(onClick = { showDialogForReminderTime = true }) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .size(10.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Outlined.DateRange, "Time Picker"
-                            )
-                            Text(text = "Time", fontSize = 8.sp)
-                        }
-                    }
-                }
             }
         }
     }
