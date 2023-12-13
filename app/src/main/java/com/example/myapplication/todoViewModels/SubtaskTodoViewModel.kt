@@ -39,6 +39,16 @@ class SubtaskTodoViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun setSubtaskFinished(todoId:Long, subtaskItemId: Long, isFinished:Boolean ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                subtaskDao.setFinished(todoId, subtaskItemId, isFinished)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun deleteSubtaskTodo(subTaskListTodo: List<SubtaskTodo>){
         viewModelScope.launch(Dispatchers.IO){
             subTaskListTodo.forEach{

@@ -385,6 +385,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                             viewModel.setFinished(todoItem.id, isChecked.value)
                         }
 
+
                         if(isEditing){
                             OutlinedTextField(
                                 value = editingTitle,
@@ -746,7 +747,10 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                         if (isSubtaskChecked) {
                                             Checkbox(
                                                 checked = isSubtaskChecked,
-                                                onCheckedChange = { isSubtaskChecked = !isSubtaskChecked })
+                                                onCheckedChange = {
+                                                    isSubtaskChecked = !isSubtaskChecked
+                                                    subtaskTodoViewModel.setSubtaskFinished(subtaskItem.id, subtaskItem.subtaskID, isSubtaskChecked)
+                                                })
                                                 if(isSubtaskChecked){
                                                     subtasksToBeDeleted = subtasksToBeDeleted + subtaskItem
                                                 }else{
@@ -757,6 +761,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, viewMode
                                                 checked = isSubtaskChecked,
                                                 onCheckedChange = {
                                                     isSubtaskChecked = it
+                                                    subtaskTodoViewModel.setSubtaskFinished(subtaskItem.id, subtaskItem.subtaskID, isSubtaskChecked)
                                                 })
                                         }
                                         if(isEditing){

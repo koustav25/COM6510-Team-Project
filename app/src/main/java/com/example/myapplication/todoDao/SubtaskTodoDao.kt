@@ -28,4 +28,7 @@ interface SubtaskTodoDao {
     @Delete
     suspend fun delete(subtaskTodo: SubtaskTodo)
 
+    @Query("Update "+SubtaskTodo.SUBTASK_TABLE_NAME+ " set isSubtaskCompleted = :isFinished where id = :id AND subtaskID = :subtaskID")
+    suspend fun setFinished(id:Long, subtaskID: Long, isFinished: Boolean)
+
 }
