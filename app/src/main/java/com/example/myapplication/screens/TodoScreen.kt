@@ -418,7 +418,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if(screenId!=4){
+                        if (screenId != 4) {
                             Checkbox(checked = isChecked.value, onCheckedChange = {
                                 isChecked.value = it
 
@@ -426,7 +426,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                         }
                         if (isChecked.value) {
                             toBeDeletedRows.add(todoItem.id)
-                            Log.d("AA", " "+isChecked.value)
+                            Log.d("AA", " " + isChecked.value)
 //                            coroutineScope.launch {
 //                                viewModel.setFinished(todoItem.id, isChecked.value)
 //                            }
@@ -436,13 +436,13 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                 toBeDeletedRows.remove(todoItem.id)
 
                         }
-                        if(todoItem.isFinished != isChecked.value) {
+                        if (todoItem.isFinished != isChecked.value) {
 //                            Log.d("Debug", " Entered the if loop "+isChecked.value)
                             viewModel.setFinished(todoItem.id, isChecked.value)
                         }
 
 
-                        if(isEditing){
+                        if (isEditing) {
                             OutlinedTextField(
                                 value = editingTitle,
                                 onValueChange = {
@@ -456,7 +456,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                     .fillMaxWidth(0.9f)
                             )
 
-                        }else{
+                        } else {
                             Text(
                                 modifier = Modifier.fillMaxWidth(0.9f),
                                 text = buildAnnotatedString {
@@ -466,7 +466,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                 },
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
-                            )}
+                            )
+                        }
 
 
                         if (isFavClicked) {
@@ -509,7 +510,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                             verticalArrangement = Arrangement.SpaceBetween,
                             horizontalAlignment = Alignment.Start
                         ) {
-                            if(isEditing){
+                            if (isEditing) {
                                 OutlinedTextField(
                                     value = editingDescription,
                                     onValueChange = { editingDescription = it },
@@ -520,13 +521,14 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                     modifier = Modifier
                                         .fillMaxWidth()
                                 )
-                            }else{
+                            } else {
                                 Text(
                                     text = buildAnnotatedString {
                                         withStyle(style = SpanStyle(textDecoration = textDecoration)) {
                                             append(todoItem.description)
                                         }
-                                    })}
+                                    })
+                            }
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
@@ -570,18 +572,25 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                             thickness = 1.dp,
                         )
                         //Adding priority here
-                        if(isEditing){
+                        if (isEditing) {
                             ExposedDropdownMenuBox(
                                 expanded = dropDownPriorityExpanded,
-                                onExpandedChange = { dropDownPriorityExpanded=!dropDownPriorityExpanded},
+                                onExpandedChange = {
+                                    dropDownPriorityExpanded = !dropDownPriorityExpanded
+                                },
                                 modifier = Modifier.padding(2.dp)
-                            ){
-                                TextField(value =
+                            ) {
+                                TextField(
+                                    value =
 //                                todoItem.priority.toString(),
-                                selectedPriority.toString(),
+                                    selectedPriority.toString(),
                                     onValueChange = { },
                                     readOnly = true,
-                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownPriorityExpanded) },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = dropDownPriorityExpanded
+                                        )
+                                    },
                                     modifier = Modifier.menuAnchor()
                                 )
                                 ExposedDropdownMenu(
@@ -599,8 +608,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                     }
                                 }
                             }
-                        }
-                        else{
+                        } else {
                             Row {
                                 Text(text = "Priority: ")
                                 Text(text = todoItem.priority.toString())
@@ -608,7 +616,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                         }
 
                         val uriCheck = todoItem.imageUri
-                        if(uriCheck != null) {
+                        if (uriCheck != null) {
                             val uri = Uri.parse(todoItem.imageUri)
                             if (uri != null) {
                                 val imageBitmap = remember(uri) {
@@ -616,24 +624,24 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                         ImageDecoder.decodeBitmap(
                                             ImageDecoder.createSource(context.contentResolver, uri)
                                         ).asImageBitmap()
-                                    }catch(e: Exception){
+                                    } catch (e: Exception) {
                                         Log.e("Exception", "$e")
                                         null
                                     }
                                 }
-                                imageBitmap?.let{
+                                imageBitmap?.let {
                                     Image(it, null)
                                 }
                             }
                         }
                         val latitudeCheck = todoItem.latitude
                         val longitudeCheck = todoItem.longitude
-                        if (latitudeCheck != null && longitudeCheck!=null) {
+                        if (latitudeCheck != null && longitudeCheck != null) {
                             Location.OpenMaps(latitudeCheck, longitudeCheck, context)
-                            Log.d("latitude","$latitudeCheck")
-                            Log.d("longitude","$longitudeCheck")
+                            Log.d("latitude", "$latitudeCheck")
+                            Log.d("longitude", "$longitudeCheck")
                         }
-                        if(isEditing){
+                        if (isEditing) {
                             Text("Edit Scheduled: ")
                             IconButton(onClick = {
                                 isEditingDate = !isEditingDate
@@ -733,10 +741,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                             }
 
                         }
-                    }
-
-
-                    else {
+                     else {
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(textDecoration = if (isChecked.value) TextDecoration.LineThrough else null)) {
@@ -761,17 +766,19 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                     }
 
 
-
-
                     val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
-                    var subtasksToBeDeleted by remember {mutableStateOf < List<SubtaskTodo>>(emptyList())}
+                    var subtasksToBeDeleted by remember {
+                        mutableStateOf<List<SubtaskTodo>>(
+                            emptyList()
+                        )
+                    }
                     //Subtasks
                     if (subtaskTodoState.isEmpty()) {
                         Text(text = "No subtasks")
                     } else {
                         var editedSubtaskScheduledDate by remember { mutableStateOf("null") }
                         var editedSubtaskScheduledTime by remember { mutableStateOf("null") }
-                        var subTaskTitle by remember{mutableStateOf("")}
+                        var subTaskTitle by remember { mutableStateOf("") }
                         subtaskTodoState.filter { it.id == todoItem.id }
                             .forEach { subtaskItem ->
                                 var subtaskEditing by remember { mutableStateOf(subtaskItem.subtaskTitle) }
@@ -786,11 +793,13 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
 
                                 var isEditingSubtaskDate by remember { mutableStateOf(false) }
                                 var isEditingSubtaskTime by remember { mutableStateOf(false) }
-                                val editSubtaskDatePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+                                val editSubtaskDatePickerState =
+                                    rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
                                 val editSubtaskTimePickerState = rememberTimePickerState()
                                 val subtaskSnackScope = rememberCoroutineScope()
-                                val editSubtaskTimeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
-                                val subtaskSnackState = remember{ SnackbarHostState() }
+                                val editSubtaskTimeFormatter =
+                                    remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+                                val subtaskSnackState = remember { SnackbarHostState() }
 
 
                                 //Row
@@ -805,11 +814,15 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                             checked = isSubtaskChecked,
                                             onCheckedChange = {
                                                 isSubtaskChecked = !isSubtaskChecked
-                                                subtaskTodoViewModel.setSubtaskFinished(subtaskItem.id, subtaskItem.subtaskID, isSubtaskChecked)
+                                                subtaskTodoViewModel.setSubtaskFinished(
+                                                    subtaskItem.id,
+                                                    subtaskItem.subtaskID,
+                                                    isSubtaskChecked
+                                                )
                                             })
-                                        if(isSubtaskChecked){
+                                        if (isSubtaskChecked) {
                                             subtasksToBeDeleted = subtasksToBeDeleted + subtaskItem
-                                        }else{
+                                        } else {
                                             subtasksToBeDeleted = subtasksToBeDeleted - subtaskItem
                                         }
                                     } else {
@@ -817,10 +830,14 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                             checked = isSubtaskChecked,
                                             onCheckedChange = {
                                                 isSubtaskChecked = it
-                                                subtaskTodoViewModel.setSubtaskFinished(subtaskItem.id, subtaskItem.subtaskID, isSubtaskChecked)
+                                                subtaskTodoViewModel.setSubtaskFinished(
+                                                    subtaskItem.id,
+                                                    subtaskItem.subtaskID,
+                                                    isSubtaskChecked
+                                                )
                                             })
                                     }
-                                    if(isEditing){
+                                    if (isEditing) {
                                         Column {
                                             OutlinedTextField(
                                                 value = subtaskEditing,
@@ -868,16 +885,23 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
 
                                                 if (isEditingSubtaskDate) {
                                                     DatePickerDialog(
-                                                        onDismissRequest = { isEditingSubtaskDate = false },
+                                                        onDismissRequest = {
+                                                            isEditingSubtaskDate = false
+                                                        },
                                                         confirmButton = {
                                                             TextButton(onClick = {
-                                                                val selectedDateMillis = editSubtaskDatePickerState.selectedDateMillis
-                                                                if(selectedDateMillis!=null){
-                                                                    editedSubtaskScheduledDate = handleSelectedDate(selectedDateMillis)
-                                                                    subtaskItem.subtaskScheduledDate = editedSubtaskScheduledDate
+                                                                val selectedDateMillis =
+                                                                    editSubtaskDatePickerState.selectedDateMillis
+                                                                if (selectedDateMillis != null) {
+                                                                    editedSubtaskScheduledDate =
+                                                                        handleSelectedDate(
+                                                                            selectedDateMillis
+                                                                        )
+                                                                    subtaskItem.subtaskScheduledDate =
+                                                                        editedSubtaskScheduledDate
                                                                 }
                                                                 isEditingSubtaskDate = false
-                                                                subtaskSnackScope.launch{
+                                                                subtaskSnackScope.launch {
                                                                     subtaskSnackState.showSnackbar(
                                                                         "Selected Date: ${editSubtaskDatePickerState.selectedDateMillis}"
                                                                     )
@@ -889,7 +913,9 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                                         },
                                                         dismissButton = {
                                                             TextButton(
-                                                                onClick = { isEditingSubtaskDate = false }
+                                                                onClick = {
+                                                                    isEditingSubtaskDate = false
+                                                                }
                                                             ) {
                                                                 Text(text = "Cancel")
                                                             }
@@ -906,13 +932,27 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                                         onCancel = { isEditingSubtaskTime = false },
                                                         onConfirm = {
                                                             val cal = Calendar.getInstance()
-                                                            cal.set(Calendar.HOUR_OF_DAY, editSubtaskTimePickerState.hour)
-                                                            cal.set(Calendar.MINUTE, editSubtaskTimePickerState.minute)
+                                                            cal.set(
+                                                                Calendar.HOUR_OF_DAY,
+                                                                editSubtaskTimePickerState.hour
+                                                            )
+                                                            cal.set(
+                                                                Calendar.MINUTE,
+                                                                editSubtaskTimePickerState.minute
+                                                            )
                                                             cal.isLenient = false
-                                                            editedSubtaskScheduledTime = editSubtaskTimeFormatter.format(cal.time)
-                                                            subtaskItem.subtaskScheduledTime = editedSubtaskScheduledTime
+                                                            editedSubtaskScheduledTime =
+                                                                editSubtaskTimeFormatter.format(cal.time)
+                                                            subtaskItem.subtaskScheduledTime =
+                                                                editedSubtaskScheduledTime
                                                             subtaskSnackScope.launch {
-                                                                subtaskSnackState.showSnackbar("Entered time: ${editSubtaskTimeFormatter.format(cal.time)}")
+                                                                subtaskSnackState.showSnackbar(
+                                                                    "Entered time: ${
+                                                                        editSubtaskTimeFormatter.format(
+                                                                            cal.time
+                                                                        )
+                                                                    }"
+                                                                )
                                                             }
                                                             isEditingSubtaskTime = false
                                                         }) {
@@ -921,7 +961,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                                 }
                                             }
                                         }
-                                    }else{
+                                    } else {
                                         Text(
                                             modifier = Modifier.fillMaxWidth(0.9f),
                                             text = buildAnnotatedString {
@@ -938,11 +978,12 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                                     }
                                                 }
                                             },
-                                        )}
+                                        )
+                                    }
                                 }
 
                                 //Updating the subtask
-                                if(subtask){
+                                if (subtask) {
                                     subtaskTodoViewModel.updateSubtaskTodo(
                                         subtaskItem.copy(
                                             subtaskTitle = subtaskEditing,
@@ -952,8 +993,12 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                     )
                                 }
                             }
-                        if(editedSubtaskScheduledDate != "null" && editedSubtaskScheduledTime!= "null")
-                            Notification.SetNotification(editedSubtaskScheduledDate+ " "+convertTimeTo24HourFormat(editedSubtaskScheduledTime) ,context, "Notification for todo $subTaskTitle")
+                        if (editedSubtaskScheduledDate != "null" && editedSubtaskScheduledTime != "null")
+                            Notification.SetNotification(
+                                editedSubtaskScheduledDate + " " + convertTimeTo24HourFormat(
+                                    editedSubtaskScheduledTime
+                                ), context, "Notification for todo $subTaskTitle"
+                            )
                     }
 
                     //Divider
@@ -994,7 +1039,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                             )
                             Text(text = "Add Subtask")
                         }
-                        if(isEditing){
+                        if (isEditing) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
                                 contentDescription = "Checked",
@@ -1010,15 +1055,19 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                             )
                                     )
 
-                                    if(editedScheduledDate != "null" && editedScheduledTime!= "null")
-                                        Notification.SetNotification(editedScheduledDate+ " "+convertTimeTo24HourFormat(editedScheduledTime) ,context, "Notification for todo $editingTitle")
+                                    if (editedScheduledDate != "null" && editedScheduledTime != "null")
+                                        Notification.SetNotification(
+                                            editedScheduledDate + " " + convertTimeTo24HourFormat(
+                                                editedScheduledTime
+                                            ), context, "Notification for todo $editingTitle"
+                                        )
                                     subtask = true
                                     isEditing = false
 
 
                                 }
                             )
-                        }else {
+                        } else {
                             //Edit Todo Button
                             IconButton(onClick = {
                                 isEditing = true
@@ -1033,14 +1082,15 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                     }
 
                     Row {
-                        if(screenId == 4 ){
+                        if (screenId == 4) {
                             SendTodoToBin(todoItem.id)
                         }
-                        if(screenId == 5){
+                        if (screenId == 5) {
                             recoverTodoFromBin(todoItem.id)
                             deletePermanently(todoItem.id)
                         }
                     }
+                }
                 }
             }
         }
