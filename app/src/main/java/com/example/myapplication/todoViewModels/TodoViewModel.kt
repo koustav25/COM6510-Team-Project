@@ -1,7 +1,10 @@
 package com.example.myapplication.todoViewModels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.Todo
@@ -12,9 +15,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.LiveData
-import android.util.Log
 
 
 class TodoViewModel(app: Application) : AndroidViewModel(app) {
@@ -29,6 +29,7 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
     val favoriteTodos: Flow<List<Todo>> = dao.getFavoriteTodos()
     val todosInBin: Flow<List<Todo>> = dao.getDeletedTodos()
     val finishedTodos: Flow<List<Todo>> = dao.getFinishedTodos()
+
 
     suspend fun addTodo(todo: Todo): Long {
         val deferred = CompletableDeferred<Long>()

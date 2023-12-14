@@ -30,7 +30,7 @@ fun Finished(onNavigate: (Long) -> Unit){
                 Log.d("Mine", "Checking if isFinished is Empty")
                 Text(text = "No Finished todos ok")
             } else {
-                Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                Todos(todo = todoViewModel.finishedTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks,4 , todoViewModel){
                         todoId -> onNavigate(todoId)
                 }
             }

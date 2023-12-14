@@ -55,4 +55,7 @@ interface TodoDao {
     @Query("Update "+Todo.TABLE_NAME+ " set isFinished = :isFinished where id = :id")
     suspend fun setFinished(id:Long, isFinished: Boolean)
 
+    @Query("Update "+Todo.TABLE_NAME+ " set isDeleted = false where id = :id")
+    abstract fun setNotDeleted(id: Long)
+
 }

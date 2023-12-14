@@ -24,7 +24,7 @@ fun Favorites(onNavigate: (Long) -> Unit){
             if (todoViewModel.isFavoritesEmpty()) {
                 Text(text = "No Favorite todos")
             } else {
-                Todos(todo = todoViewModel.favoriteTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks, todoViewModel){
+                Todos(todo = todoViewModel.favoriteTodos, subtaskTodo = subtaskTodoViewModel.allSubtasks,0, todoViewModel){
                         todoId -> onNavigate(todoId)
                 }
                 TodoDeleteIcon()

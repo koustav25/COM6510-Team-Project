@@ -11,17 +11,14 @@ data class PriorityTodos(
 
 fun PriorityTodosData(): List<PriorityTodos>{
     return listOf(
-        PriorityTodos(priorityName = "Select a priority",
-            priority = Priority.NULL
-        ),
-        PriorityTodos(priorityName = "HIGH",
-            priority = Priority.HIGH
-        ),
         PriorityTodos(priorityName = "STANDARD",
             priority = Priority.STANDARD
         ),
         PriorityTodos(priorityName = "LOW",
             priority = Priority.LOW
+        ),
+        PriorityTodos(priorityName = "HIGH",
+            priority = Priority.HIGH
         )
 
     )

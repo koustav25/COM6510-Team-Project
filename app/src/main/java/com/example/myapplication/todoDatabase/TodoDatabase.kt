@@ -9,12 +9,12 @@ import com.example.myapplication.todoDao.TodoDao
 import com.example.myapplication.todoEntities.SubtaskTodo
 import com.example.myapplication.todoEntities.Todo
 
-@Database(entities = [Todo::class, SubtaskTodo::class], version = 1, exportSchema = false)
+@Database(entities = [Todo::class, SubtaskTodo::class], version = 2, exportSchema = false)
 abstract class TodoDatabase : RoomDatabase() {
 
     abstract fun todoDao(): TodoDao
     abstract fun subtaskDao(): SubtaskTodoDao
-
+//    abstract fun settingPageDao() : SettingDao
     companion object {
         private const val DB_NAME = "Todo_DB"
         @Volatile
