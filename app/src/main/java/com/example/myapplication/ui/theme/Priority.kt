@@ -9,6 +9,7 @@ data class PriorityTodos(
     val priority: Priority
 )
 
+//Priority categories with Name and Enum value
 fun PriorityTodosData(): List<PriorityTodos>{
     return listOf(
         PriorityTodos(priorityName = "STANDARD",

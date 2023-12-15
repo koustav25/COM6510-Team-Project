@@ -1,9 +1,11 @@
 package com.example.myapplication.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -69,7 +71,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TodoCategories
-import com.example.myapplication.function.Location.Location
 import com.example.myapplication.function.Location.Location.Resume
 import com.example.myapplication.function.Notification.Notification
 import com.example.myapplication.todoDatabase.TodoDatabase
@@ -87,10 +88,7 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 
-
 var toBeDeletedRows = hashSetOf<Long>()
-
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -207,7 +205,6 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
                         5,
                         viewModel = todoViewModel
                     ) { todoId -> onNavigate(todoId) }
-//                    DeleteIcon()
                 }
             }
         }
@@ -312,18 +309,9 @@ fun DeleteIcon(){
 
     }
 }
-//fun geoLocationComparatorASC() = Comparator<Todo>{ a, b ->
-//        a.latitude
-//    when {
-////        (a.priority == b.priority) -> 0
-////        (a.priority == Priority.HIGH && b.priority == Priority.STANDARD) -> -1
-////        (a.priority == Priority.HIGH && b.priority == Priority.LOW) -> -1
-////        (a.priority == Priority.STANDARD && b.priority == Priority.LOW) -> -1
-//        else -> 0
-//    }
-//}
 
 
+//Comparator function for sorting todos by priority in ascending order
 fun priorityComparatorASC() = Comparator<Todo>{ a, b ->
     when {
         (a.priority == b.priority) -> 0
@@ -334,6 +322,7 @@ fun priorityComparatorASC() = Comparator<Todo>{ a, b ->
     }
 }
 
+//Comparator function for sorting todos by priority in descending order
 fun priorityComparatorDSC() = Comparator<Todo>{ a, b ->
     when {
         (a.priority == b.priority) -> 0
@@ -344,13 +333,12 @@ fun priorityComparatorDSC() = Comparator<Todo>{ a, b ->
     }
 }
 
+//Comparator function for sorting todos by date in ascending order
 @SuppressLint("SimpleDateFormat")
 fun dateComparatorASC() = Comparator<Todo>{ a, b ->
     val format = SimpleDateFormat("yyyy-MM-dd")
     val date1: Date
     val date2: Date
-//    Log.d("mine",a.scheduledDate.toString())
-//    Log.d("mine",b.scheduledDate.toString())
     if(a.scheduledDate.equals("null")){
         Log.d("mine","a is null")
         date1 = format.parse("0000-00-00")!!
@@ -363,8 +351,6 @@ fun dateComparatorASC() = Comparator<Todo>{ a, b ->
     }else{
         date2 = format.parse(b.scheduledDate)!!
     }
-//    Log.d("mine",date1.toString())
-//    Log.d("mine",date2.toString())
     when {
         (date1 < date2) -> -1
         (date1 == date2) -> 0
@@ -372,13 +358,12 @@ fun dateComparatorASC() = Comparator<Todo>{ a, b ->
     }
 }
 
+//Comparator function for sorting todos by date in descending order
 @SuppressLint("SimpleDateFormat")
 fun dateComparatorDSC() = Comparator<Todo>{ a, b ->
     val format = SimpleDateFormat("yyyy-MM-dd")
     val date1: Date
     val date2: Date
-//    Log.d("mine",a.scheduledDate.toString())
-//    Log.d("mine",b.scheduledDate.toString())
     if(a.scheduledDate.equals("null")){
         Log.d("mine","a is null")
         date1 = format.parse("0000-00-00")!!
@@ -391,8 +376,6 @@ fun dateComparatorDSC() = Comparator<Todo>{ a, b ->
     }else{
         date2 = format.parse(b.scheduledDate)!!
     }
-//    Log.d("mine",date1.toString())
-//    Log.d("mine",date2.toString())
     when {
         (date1 > date2) -> -1
         (date1 == date2) -> 0
@@ -400,10 +383,34 @@ fun dateComparatorDSC() = Comparator<Todo>{ a, b ->
     }
 }
 
-@Composable
-fun SortingOptions() {
-    val todoViewModel: TodoViewModel = viewModel()
-    val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
+//Comparator function for sorting todos by geolocation in ascending order by distance
+fun geoLocationComparatorASC() = Comparator<Todo>{ a, b ->
+    var alat = a.latitude
+    if(alat.isNullOrEmpty()){
+        alat = 0.toString();
+    }
+    var alon = a.longitude
+    if(alon.isNullOrEmpty()){
+        alon = 0.toString();
+    }
+    var blat = b.latitude
+    if(blat.isNullOrEmpty()){
+        blat = 0.toString();
+    }
+    var blon = b.longitude
+    if(blon.isNullOrEmpty()){
+        blon = 0.toString();
+    }
+
+    when {
+        (alat < blat && alon < blon) -> -1
+        (blat < alat && blon < alon) -> -1
+        else -> 0
+    }
+}
+
+fun getTodoScreenToast(context: Context, msg: String){
+    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -411,38 +418,56 @@ fun SortingOptions() {
 fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId: Int, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
     val subtaskTodoState by subtaskTodo.collectAsState(initial = emptyList())
+    val context = LocalContext.current
     var comparator by remember { mutableStateOf(priorityComparatorASC()) }
-    Collections.sort(todosState, comparator)
-
+    Collections.sort(todosState, comparator);
     Column {
-        Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+        Row(horizontalArrangement = Arrangement.Start
         ) {
-            var c1 by remember{ mutableStateOf(false) }
-            var c2 by remember{ mutableStateOf(false)}
+            var isDateCompTrue by remember{ mutableStateOf(false) }
+            var isPriorityCompTrue by remember{ mutableStateOf(false)}
+            var isGeolocCompTrue by remember{ mutableStateOf(false)}
             Button(onClick = {
-                c1=!c1;
-                if(c1){
+                isDateCompTrue=!isDateCompTrue;
+                if(isDateCompTrue){
                     comparator = dateComparatorASC();
+                    getTodoScreenToast(context, "Todos Sorted By Date ASC")
                 }else{
                     comparator = dateComparatorDSC();
+                    getTodoScreenToast(context, "Todos Sorted By Date DSC")
                 }
+
             }) {
-                if(c1)Text(text = "Date By ASC")
+                if(isDateCompTrue)Text(text = "Date By ASC")
                 else Text(text = "Date By DSC")
             }
 
             Button(onClick = {
-                c2=!c2
-                if(c2){
+                isPriorityCompTrue=!isPriorityCompTrue
+                if(isPriorityCompTrue){
                     comparator = priorityComparatorASC();
+                    getTodoScreenToast(context, "Todos Sorted By Priority ASC")
                 }else{
                     comparator = priorityComparatorDSC();
+                    getTodoScreenToast(context, "Todos Sorted By Priority DSC")
                 }
             }) {
-                if(c2)Text(text = "Priority By ASC")
+                if(isPriorityCompTrue)Text(text = "Priority By ASC")
                 else Text(text = "Priority By DSC")
+            }
+
+            Button(onClick = {
+                isGeolocCompTrue=!isGeolocCompTrue
+                if(isGeolocCompTrue){
+                    comparator = geoLocationComparatorASC()
+                    getTodoScreenToast(context, "Todos Sorted By Location ASC")
+                }else{
+                    comparator = geoLocationComparatorASC()
+                    getTodoScreenToast(context, "Todos Sorted By Location DSC")
+                }
+            }) {
+                if(isGeolocCompTrue)Text(text = "Location By ASC")
+                else Text(text = "Location By DSC")
             }
         }
 
@@ -504,23 +529,16 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                         if (screenId != 4) {
                             Checkbox(checked = isChecked.value, onCheckedChange = {
                                 isChecked.value = it
-
                             })
                         }
                         if (isChecked.value) {
                             toBeDeletedRows.add(todoItem.id)
-                            Log.d("AA", " " + isChecked.value)
-//                            coroutineScope.launch {
-//                                viewModel.setFinished(todoItem.id, isChecked.value)
-//                            }
                         } else {
-//                            Log.d("TAG", " "+todoItem.id + " ")
                             if (toBeDeletedRows.contains(todoItem.id))
                                 toBeDeletedRows.remove(todoItem.id)
 
                         }
                         if (todoItem.isFinished != isChecked.value) {
-//                            Log.d("Debug", " Entered the if loop "+isChecked.value)
                             viewModel.setFinished(todoItem.id, isChecked.value)
                         }
 
@@ -666,7 +684,6 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                             ) {
                                 TextField(
                                     value =
-//                                todoItem.priority.toString(),
                                     selectedPriority.toString(),
                                     onValueChange = { },
                                     readOnly = true,
@@ -694,8 +711,12 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                             }
                         } else {
                             Row {
-                                Text(text = "Priority: ")
-                                Text(text = todoItem.priority.toString())
+                                Text(
+                                    text = buildAnnotatedString {
+                                        withStyle(style = SpanStyle(textDecoration = textDecoration)) {
+                                            append("Priority: "+todoItem.priority.toString())
+                                        }
+                                    })
                             }
                         }
 
@@ -718,13 +739,6 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                 }
                             }
                         }
-//                        val latitudeCheck = todoItem.latitude
-//                        val longitudeCheck = todoItem.longitude
-//                        if (latitudeCheck != null && longitudeCheck != null) {
-//                            Location.OpenMaps(latitudeCheck, longitudeCheck, context)
-//                            Log.d("latitude", "$latitudeCheck")
-//                            Log.d("longitude", "$longitudeCheck")
-//                        }
                         if (isEditing) {
                             Text("Edit Scheduled: ")
                             IconButton(onClick = {
@@ -1181,6 +1195,8 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
     }
 
 }
+
+//Function to delete todos permanently
 @Composable
 fun deletePermanently(id: Long) {
     val buttonCoroutineScope = rememberCoroutineScope()
@@ -1200,13 +1216,13 @@ fun deletePermanently(id: Long) {
     }
 }
 
+//Function to recover todos from Bin to All todos
 @Composable
 fun recoverTodoFromBin(id: Long) {
     val buttonCoroutineScope = rememberCoroutineScope()
     val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
     fun clickToRecover(id: Long) {
         buttonCoroutineScope.launch {
-
             dao.setNotDeleted(
                 id
             )
@@ -1219,6 +1235,7 @@ fun recoverTodoFromBin(id: Long) {
     }
 }
 
+//Function to send todos to Bin(mark as deleted)
 @Composable
 fun SendTodoToBin(id: Long){
     val buttonCoroutineScope = rememberCoroutineScope()
@@ -1256,49 +1273,7 @@ fun convertTimeTo24HourFormat(time: String?): String {
     return ""
 }
 
-enum class SortOption {
-    DATE, TITLE
-}
 
-//var tracker = 0;
-
-//this is segments control
-//@Composable
-//fun SortingOptions(onSortSelected: (String) -> Unit) {
-//    Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
-//        .fillMaxWidth()
-//        .padding(8.dp)) {
-//        Button(onClick = { onSortSelected("date");tracker=1;Log.d("m",tracker.toString()) }) {
-//            Text("Sort by Date")
-//
-////            Log.d("m",tracker.toString())
-//        }
-//        Button(onClick = { onSortSelected("title") }) {
-//            Text("Sort by Title")
-//        }
-//        Button(onClick = { onSortSelected("title");tracker=2;Log.d("m",tracker.toString()) }) {
-//            Text("Sort by Priority")
-////            tracker=2
-////            Log.d("m",tracker.toString())
-//        }
-//    }
-//}
-
-//this is segments control
-//@Composable
-//fun SortingOptions(onSortSelected: (String) -> Unit) {
-//    Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
-//        .fillMaxWidth()
-//        .padding(8.dp)) {
-//        Button(onClick = { onSortSelected("date") }) {
-//            Text("Sort by Date")
-//        }
-////        Spacer(modifier = Modifier.width(8.dp))
-//        Button(onClick = { onSortSelected("title") }) {
-//            Text("Sort by Title")
-//        }
-//    }
-//}
 
 
 
