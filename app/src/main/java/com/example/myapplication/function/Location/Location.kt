@@ -127,7 +127,7 @@ object Location {
                  Notification.SetNotification(currentDateTime.format(formatter) ,context, " Location reached ")
              }
          }
-         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0.0f,GeoLocationService)
+        // locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0.0f,GeoLocationService)
          Log.d("location","$locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0.0f,GeoLocationService)")
      }
  }
