@@ -90,38 +90,12 @@ import java.util.Locale
 var toBeDeletedRows = hashSetOf<Long>()
 
 
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
     val todoViewModel: TodoViewModel = viewModel()
     val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
-
-    @Composable
-    fun sortTodos(todoViewModel: TodoViewModel, subtaskTodoViewModel: SubtaskTodoViewModel) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                SortingOptions { sortBy ->
-                    when (sortBy) {
-                        "date" -> {
-                            todoViewModel.sortTodosByDate()
-                            subtaskTodoViewModel.sortTodosByDate()
-                        }
-
-                        "title" -> {
-                            todoViewModel.sortTodosByTitle()
-                            subtaskTodoViewModel.sortTodosByTitle()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
     LazyColumn(
         modifier = Modifier
@@ -138,7 +112,6 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
                     Text(text = ("No todos created today"))
                 }
                 else {
-                    sortTodos(todoViewModel, subtaskTodoViewModel)
                     Todos(
                         todo = todoViewModel.currentDateTodos,
                         subtaskTodo = subtaskTodoViewModel.allSubtasks,
@@ -157,7 +130,6 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
                     Text(text = ("No Todos"))
                 }
                 else {
-                    sortTodos(todoViewModel, subtaskTodoViewModel)
                     Todos(
                         todo = todoViewModel.allTodos,
                         subtaskTodo = subtaskTodoViewModel.allSubtasks,
@@ -176,7 +148,6 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
                     Text(text = ("No scheduled todos"))
                 }
                 else {
-                    sortTodos(todoViewModel, subtaskTodoViewModel)
                     Todos(
                         todo = todoViewModel.scheduledTodos,
                         subtaskTodo = subtaskTodoViewModel.allSubtasks,
@@ -193,7 +164,6 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
                 if (todoViewModel.isImportantEmpty()) {
                     Text(text = "No Important todos")
                 } else {
-                    sortTodos(todoViewModel, subtaskTodoViewModel)
                     Todos(
                         todo = todoViewModel.importantTodos,
                         subtaskTodo = subtaskTodoViewModel.allSubtasks,
@@ -236,7 +206,7 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
                         5,
                         viewModel = todoViewModel
                     ) { todoId -> onNavigate(todoId) }
-                    DeleteIcon()
+//                    DeleteIcon()
                 }
             }
         }
@@ -247,9 +217,6 @@ fun TodoDetail(selectedCategory: TodoCategories?, onNavigate: (Long) -> Unit){
 
 @Composable
 fun TodoDeleteIcon(){
-//    val buttonCoroutineScope = rememberCoroutineScope()
-//    val dao = TodoDatabase.getDatabase(LocalContext.current).todoDao()
-    //  TodoViewModel
     val todoViewModel: TodoViewModel = viewModel()
     fun clickToDelete(){
         toBeDeletedRows.iterator().forEach { element->
@@ -344,25 +311,140 @@ fun DeleteIcon(){
 
     }
 }
+//fun geoLocationComparatorASC() = Comparator<Todo>{ a, b ->
+//        a.latitude
+//    when {
+////        (a.priority == b.priority) -> 0
+////        (a.priority == Priority.HIGH && b.priority == Priority.STANDARD) -> -1
+////        (a.priority == Priority.HIGH && b.priority == Priority.LOW) -> -1
+////        (a.priority == Priority.STANDARD && b.priority == Priority.LOW) -> -1
+//        else -> 0
+//    }
+//}
 
 
-fun myCustomComparator() = Comparator<Todo>{ a, b ->
+fun priorityComparatorASC() = Comparator<Todo>{ a, b ->
     when {
         (a.priority == b.priority) -> 0
         (a.priority == Priority.HIGH && b.priority == Priority.STANDARD) -> -1
         (a.priority == Priority.HIGH && b.priority == Priority.LOW) -> -1
-        else -> 1
+        (a.priority == Priority.STANDARD && b.priority == Priority.LOW) -> -1
+        else -> 0
     }
 }
+
+fun priorityComparatorDSC() = Comparator<Todo>{ a, b ->
+    when {
+        (a.priority == b.priority) -> 0
+        (a.priority == Priority.STANDARD && b.priority == Priority.HIGH) -> -1
+        (a.priority == Priority.LOW && b.priority == Priority.HIGH) -> -1
+        (a.priority == Priority.LOW && b.priority == Priority.STANDARD) -> -1
+        else -> 0
+    }
+}
+
+@SuppressLint("SimpleDateFormat")
+fun dateComparatorASC() = Comparator<Todo>{ a, b ->
+    val format = SimpleDateFormat("yyyy-MM-dd")
+    val date1: Date
+    val date2: Date
+//    Log.d("mine",a.scheduledDate.toString())
+//    Log.d("mine",b.scheduledDate.toString())
+    if(a.scheduledDate.equals("null")){
+        Log.d("mine","a is null")
+        date1 = format.parse("0000-00-00")!!
+    }else{
+        date1 = format.parse(a.scheduledDate)!!
+    }
+    if(b.scheduledDate.equals("null")){
+        Log.d("mine","b is null")
+        date2 = format.parse("0000-00-00")!!
+    }else{
+        date2 = format.parse(b.scheduledDate)!!
+    }
+//    Log.d("mine",date1.toString())
+//    Log.d("mine",date2.toString())
+    when {
+        (date1 < date2) -> -1
+        (date1 == date2) -> 0
+        else -> 0
+    }
+}
+
+@SuppressLint("SimpleDateFormat")
+fun dateComparatorDSC() = Comparator<Todo>{ a, b ->
+    val format = SimpleDateFormat("yyyy-MM-dd")
+    val date1: Date
+    val date2: Date
+//    Log.d("mine",a.scheduledDate.toString())
+//    Log.d("mine",b.scheduledDate.toString())
+    if(a.scheduledDate.equals("null")){
+        Log.d("mine","a is null")
+        date1 = format.parse("0000-00-00")!!
+    }else{
+        date1 = format.parse(a.scheduledDate)!!
+    }
+    if(b.scheduledDate.equals("null")){
+        Log.d("mine","b is null")
+        date2 = format.parse("0000-00-00")!!
+    }else{
+        date2 = format.parse(b.scheduledDate)!!
+    }
+//    Log.d("mine",date1.toString())
+//    Log.d("mine",date2.toString())
+    when {
+        (date1 > date2) -> -1
+        (date1 == date2) -> 0
+        else -> 0
+    }
+}
+
+@Composable
+fun SortingOptions() {
+    val todoViewModel: TodoViewModel = viewModel()
+    val subtaskTodoViewModel: SubtaskTodoViewModel = viewModel()
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId: Int, viewModel: TodoViewModel, onNavigate: (todoId: Long) -> Unit) {
     val todosState by todo.collectAsState(initial = emptyList())
     val subtaskTodoState by subtaskTodo.collectAsState(initial = emptyList())
-
-    Collections.sort(todosState, myCustomComparator())
+    var comparator by remember { mutableStateOf(priorityComparatorASC()) }
+    Collections.sort(todosState, comparator)
 
     Column {
+        Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+        ) {
+            var c1 by remember{ mutableStateOf(false) }
+            var c2 by remember{ mutableStateOf(false)}
+            Button(onClick = {
+                c1=!c1;
+                if(c1){
+                    comparator = dateComparatorASC();
+                }else{
+                    comparator = dateComparatorDSC();
+                }
+            }) {
+                if(c1)Text(text = "Date By ASC")
+                else Text(text = "Date By DSC")
+            }
+
+            Button(onClick = {
+                c2=!c2
+                if(c2){
+                    comparator = priorityComparatorASC();
+                }else{
+                    comparator = priorityComparatorDSC();
+                }
+            }) {
+                if(c2)Text(text = "Priority By ASC")
+                else Text(text = "Priority By DSC")
+            }
+        }
+
         todosState.forEach { todoItem ->
             var isExpanded by remember { mutableStateOf(false) }
             val isChecked = remember { mutableStateOf(todoItem.isFinished) }
@@ -1176,21 +1258,48 @@ enum class SortOption {
     DATE, TITLE
 }
 
+//var tracker = 0;
+
 //this is segments control
-@Composable
-fun SortingOptions(onSortSelected: (String) -> Unit) {
-    Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
-        Button(onClick = { onSortSelected("date") }) {
-            Text("Sort by Date")
-        }
-//        Spacer(modifier = Modifier.width(8.dp))
-        Button(onClick = { onSortSelected("title") }) {
-            Text("Sort by Title")
-        }
-    }
-}
+//@Composable
+//fun SortingOptions(onSortSelected: (String) -> Unit) {
+//    Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
+//        .fillMaxWidth()
+//        .padding(8.dp)) {
+//        Button(onClick = { onSortSelected("date");tracker=1;Log.d("m",tracker.toString()) }) {
+//            Text("Sort by Date")
+//
+////            Log.d("m",tracker.toString())
+//        }
+//        Button(onClick = { onSortSelected("title") }) {
+//            Text("Sort by Title")
+//        }
+//        Button(onClick = { onSortSelected("title");tracker=2;Log.d("m",tracker.toString()) }) {
+//            Text("Sort by Priority")
+////            tracker=2
+////            Log.d("m",tracker.toString())
+//        }
+//    }
+//}
+
+//this is segments control
+//@Composable
+//fun SortingOptions(onSortSelected: (String) -> Unit) {
+//    Row(horizontalArrangement = Arrangement.Start, modifier = Modifier
+//        .fillMaxWidth()
+//        .padding(8.dp)) {
+//        Button(onClick = { onSortSelected("date") }) {
+//            Text("Sort by Date")
+//        }
+////        Spacer(modifier = Modifier.width(8.dp))
+//        Button(onClick = { onSortSelected("title") }) {
+//            Text("Sort by Title")
+//        }
+//    }
+//}
+
+
+
 
 
 

@@ -1,7 +1,6 @@
 package com.example.myapplication.todoViewModels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -138,15 +137,5 @@ class TodoViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _todos = MutableLiveData<List<Todo>>()
     val todos: LiveData<List<Todo>> = _todos
-
-    fun sortTodosByDate() {
-        Log.d("TodoViewModel", "Sorting by date")
-        _todos.value = _todos.value?.sortedBy { it.scheduledDate }
-    }
-    fun sortTodosByTitle() {
-        Log.d("TodoViewModel", "Sorting by title")
-        _todos.value = _todos.value?.sortedBy { it.title }
-    }
-
 
 }
