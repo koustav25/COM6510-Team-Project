@@ -33,7 +33,6 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
         Log.d("latest Location","$location")
 
     }
-    val latitudeLongitudeCheck: Flow<List<Todo>> = dao.getlatitudeAndlongitude(latitude.toString(),longitude.toString())
 
     fun updateLocation(newLocation: Location) {
         _setLocation(newLocation)
@@ -47,8 +46,8 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
         return (location != null)
     }
 
-    fun isEmpty(): Boolean = runBlocking{
-        val todosList = latitudeLongitudeCheck.firstOrNull()
+    fun isEmpty(latitude:Double,longitude:Double,id:Long): Boolean = runBlocking{
+        val todosList = dao.getLatitudeAndLongitude(String.format("%.3f",latitude),String.format("%.3f",longitude),id).firstOrNull()
         todosList.isNullOrEmpty()
     }
 

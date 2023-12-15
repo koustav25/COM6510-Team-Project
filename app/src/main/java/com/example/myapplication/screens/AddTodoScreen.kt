@@ -713,8 +713,8 @@ fun AddTodo(templateTodos: List<TemplateTodos>, onNavigate: () -> Unit) {
                                 isDeleted = isDeleted,
                                 priority = priorityVal,
                                 imageUri = imageURI,
-                                longitude = coordinate?.longitude,
-                                latitude = coordinate?.latitude
+                                longitude = String.format("%.3f", coordinate?.longitude?.toDouble()),
+                                latitude = String.format("%.3f", coordinate?.latitude?.toDouble())
                             )
                         )
                     }

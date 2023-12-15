@@ -111,23 +111,23 @@ object Location {
 
  @SuppressLint("MissingPermission")
  @Composable
- fun Resume(context: Context){
+ fun Resume(context: Context, id: Long){
      val locationViewModel : LocationViewModel = viewModel()
      val locationManager =
          context.getSystemService(ComponentActivity.LOCATION_SERVICE) as LocationManager
      if (!hasPermission(context)){
          requestFineLocationPermission(context)
      }else{
-         val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+         val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
          if(location!=null){
              GeoLocationService.updateLatestLocation(location)
-             if(locationViewModel.isEmpty()){
+             if(!(locationViewModel.isEmpty(location.latitude,location.longitude,id))){
                  val currentDateTime = LocalDateTime.now()
                  val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                 Notification.SetNotification(currentDateTime.format(formatter) ,context, "device is away")
+                 Notification.SetNotification(currentDateTime.format(formatter) ,context, " Location reached ")
              }
          }
-         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0.0f,GeoLocationService)
+         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0.0f,GeoLocationService)
          Log.d("location","$locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0.0f,GeoLocationService)")
      }
  }

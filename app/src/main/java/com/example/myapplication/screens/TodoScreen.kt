@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TodoCategories
 import com.example.myapplication.function.Location.Location
+import com.example.myapplication.function.Location.Location.Resume
 import com.example.myapplication.function.Notification.Notification
 import com.example.myapplication.todoDatabase.TodoDatabase
 import com.example.myapplication.todoEntities.SubtaskTodo
@@ -649,6 +650,7 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
 
                     //Expand todo
                     if (isExpanded) {
+                        Resume(context, todoItem.id)
                         Divider(
                             modifier = Modifier.padding(vertical = 5.dp),
                             thickness = 1.dp,
@@ -716,13 +718,13 @@ fun Todos(todo: Flow<List<Todo>>, subtaskTodo: Flow<List<SubtaskTodo>>, screenId
                                 }
                             }
                         }
-                        val latitudeCheck = todoItem.latitude
-                        val longitudeCheck = todoItem.longitude
-                        if (latitudeCheck != null && longitudeCheck != null) {
-                            Location.OpenMaps(latitudeCheck, longitudeCheck, context)
-                            Log.d("latitude", "$latitudeCheck")
-                            Log.d("longitude", "$longitudeCheck")
-                        }
+//                        val latitudeCheck = todoItem.latitude
+//                        val longitudeCheck = todoItem.longitude
+//                        if (latitudeCheck != null && longitudeCheck != null) {
+//                            Location.OpenMaps(latitudeCheck, longitudeCheck, context)
+//                            Log.d("latitude", "$latitudeCheck")
+//                            Log.d("longitude", "$longitudeCheck")
+//                        }
                         if (isEditing) {
                             Text("Edit Scheduled: ")
                             IconButton(onClick = {
