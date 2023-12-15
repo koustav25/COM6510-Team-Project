@@ -1,6 +1,7 @@
 package com.example.myapplication.function.Location
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -29,6 +30,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.function.Notification.Notification
+import com.example.myapplication.todoViewModels.LocationViewModel
+import com.example.myapplication.todoViewModels.TodoViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 object Location {
     //get the latitude and longitude and then open the google map
@@ -36,6 +44,8 @@ object Location {
     @Composable
     fun GetLocation(context: Context):Coordinate? {
         var coordinate by remember { mutableStateOf<Coordinate?>(null) }
+        val locationViewModel = viewModel<LocationViewModel>()
+        GeoLocationService.locationViewModel = locationViewModel
         if (!hasPermission(context)){
             requestFineLocationPermission(context)
         }else{
@@ -47,11 +57,12 @@ object Location {
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 IconButton(onClick ={
-                    val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                     val lat = location?.latitude.toString()
                     val lon = location?.longitude.toString()
-                    OpenMaps(lat,lon,context)
-                   coordinate = Coordinate(lat,lon)
+                    coordinate = Coordinate(lat,lon)
+                    //OpenMaps(lat,lon,context)
+
                     Log.d("location","location ${coordinate}")
                 }){
                     Column(modifier = Modifier
@@ -97,5 +108,28 @@ object Location {
         intent.setPackage("com.google.android.apps.maps")
         context.startActivity(intent)
     }
+
+ @SuppressLint("MissingPermission")
+ @Composable
+ fun Resume(context: Context){
+     val locationViewModel : LocationViewModel = viewModel()
+     val locationManager =
+         context.getSystemService(ComponentActivity.LOCATION_SERVICE) as LocationManager
+     if (!hasPermission(context)){
+         requestFineLocationPermission(context)
+     }else{
+         val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+         if(location!=null){
+             GeoLocationService.updateLatestLocation(location)
+             if(locationViewModel.isEmpty()){
+                 val currentDateTime = LocalDateTime.now()
+                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                 Notification.SetNotification(currentDateTime.format(formatter) ,context, "device is away")
+             }
+         }
+         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0.0f,GeoLocationService)
+         Log.d("location","$locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0.0f,GeoLocationService)")
+     }
+ }
 
 }

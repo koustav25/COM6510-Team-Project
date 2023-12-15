@@ -19,6 +19,9 @@ interface TodoDao {
     @Query("SELECT * FROM "+ Todo.TABLE_NAME + " WHERE isDeleted = false")
     fun getAllTodos(): Flow<List<Todo>>
 
+    @Query("Select * from "+Todo.TABLE_NAME+ " where latitude =:latitude and longitude =:longitude")
+    fun getlatitudeAndlongitude(latitude:String, longitude:String): Flow<List<Todo>>
+
     @Query("SELECT * FROM "+ Todo.TABLE_NAME)
     fun getAllTableTodos(): Flow<List<Todo>>
 
